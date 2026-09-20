@@ -42,12 +42,30 @@ cliente Windows.
   restore e histórico automático antes de qualquer escrita.
 - **CLI completa** e **GUI GTK4** com abas (Geral, FastFlags, Mods, Backups).
 
-## Jeito fácil (para só querer jogar 🎮)
+## Download (jeito fácil)
 
-1. Baixe/copie o arquivo **`Blunix-<versão>-x86_64.AppImage`**
+Baixe o AppImage mais recente na página de **[Releases](https://github.com/JADRT22/blunix/releases/latest)**:
+
+1. Baixe **`Blunix-<versão>-x86_64.AppImage`**
 2. Clique com botão direito → **Propriedades → Permitir executar** (só na 1ª vez)
-3. Dê duplo clique → janela abre com um botão grande **🎮 JOGAR ROBLOX**
+3. Dê duplo clique → janela abre com um botão grande **🎮 JOGAR**
 4. Opcional: cole o número ou link de um jogo e clique **Abrir jogo**
+
+> Toda versão nova é gerada automaticamente pela CI do GitHub — igual ao
+> Bloxstrap, que publica as releases dele por GitHub Actions. Para atualizar,
+> basta baixar o AppImage novo e substituir o antigo (suas configurações,
+> flags e mods ficam em `~/.local/share`/`~/.local/state` e não são tocadas).
+
+## Rodar do código (para quem gosta de mexer 🔧)
+
+```bash
+git clone https://github.com/JADRT22/blunix.git
+cd blunix
+python3 -m blunix            # GUI
+python3 -m blunix doctor     # CLI (não precisa de GTK)
+```
+
+Ou gere seu próprio AppImage: `./tools/build-appimage.sh`
 
 Para o ícone ficar no menu de aplicativos:
 
