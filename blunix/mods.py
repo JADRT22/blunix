@@ -111,7 +111,8 @@ def remove_path(rel_path: str) -> bool:
     """Remove um arquivo (ou pasta inteira) do overlay. Retorna True se removeu."""
     root = overlay_root().resolve()
     target = (root / rel_path).resolve()
-    if not str(target).startswith(str(root)):
+    # is_relative_to evita falso positivo de prefixo (ex.: root '/foo/bar' vs '/foo/barbaz')
+    if not target.is_relative_to(root):
         raise ModError("Caminho fora do asset_overlay")
     if target.is_dir():
         shutil.rmtree(target)

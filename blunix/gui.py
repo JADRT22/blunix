@@ -372,7 +372,7 @@ class BlunixWindow(Gtk.ApplicationWindow):
         outer.append(self._scrolled(self.checks_list))
 
         btn_refresh = Gtk.Button(label=t("sys.refresh"))
-        btn_refresh.connect("clicked", lambda _b: self._refresh_checks())
+        btn_refresh.connect("clicked", lambda _b: self._refresh_checks(force=True))
         btn_refresh.set_halign(Gtk.Align.START)
         outer.append(btn_refresh)
 
@@ -604,7 +604,7 @@ class BlunixWindow(Gtk.ApplicationWindow):
         return False
 
     def _on_open_release(self, _btn: Gtk.Button) -> None:
-        url = getattr(self.upd_banner, "_blunix_url", None) or updates.API_URL.replace("/releases/latest", "/releases/latest")
+        url = getattr(self.upd_banner, "_blunix_url", None) or f"https://github.com/{updates.REPO}/releases/latest"
         try:
             Gtk.show_uri(None, url, Gdk.CURRENT_TIME)
         except Exception:  # noqa: BLE001 — sem navegador: mostra o link
@@ -624,15 +624,16 @@ class BlunixWindow(Gtk.ApplicationWindow):
         except (fflags.FFFlagError, ValueError, OSError) as exc:
             _toast(self, t("dlg.err_profile"), str(exc), error=True)
             return
-        if place:
-            place_id = str(launcher.extract_place_id(place) or place)
-            history.add_recent(place_id, resolve=True,
-                               on_name=lambda _n: GLib.idle_add(self._refresh_games_row))
-            self._refresh_games_row()
         try:
-            launcher.launch(place)
+            place_id = launcher.extract_place_id(place) if place else None
+            if place_id:
+                history.add_recent(place_id, resolve=True,
+                                   on_name=lambda _n: GLib.idle_add(self._refresh_games_row))
+                self._refresh_games_row()
+            launcher.launch(place_id)
         except launcher.LaunchError as exc:
             _toast(self, t("dlg.err_launch"), str(exc), error=True)
+            return
 
     def _on_big_play(self, _btn: Gtk.Button) -> None:
         self._play(None)
@@ -645,9 +646,9 @@ class BlunixWindow(Gtk.ApplicationWindow):
     def _on_toggle_details(self, _btn: Gtk.Button) -> None:
         self.checks_revealer.set_reveal_child(not self.checks_revealer.get_reveal_child())
 
-    def _refresh_checks(self) -> None:
-        """Popula a lista técnica de checagens (roda rápido: <1s)."""
-        checks = environment.run_checks()
+    def _refresh_checks(self, force: bool = False) -> None:
+        """Popula a lista técnica de checagens (usa cache de 30s; force reexecuta)."""
+        checks = environment.run_checks(use_cache=not force)
         self._last_checks = checks
         if not hasattr(self, "checks_list"):
             return  # aba Sistema ainda não foi construída
@@ -880,6 +881,9 @@ class BlunixWindow(Gtk.ApplicationWindow):
         for name, value in sorted(current.items()):
             row_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=1,
                               margin_top=6, margin_bottom=6, margin_start=8, margin_end=8)
+            lrow = Gtk.ListBoxRow()
+            lrow._blunix_flag_name = name
+            lrow.set_child(row_box)
             title_lbl = Gtk.Label()
             title_lbl.set_markup(f"<b>{name}</b> = {value}")
             title_lbl.set_halign(Gtk.Align.START)
@@ -893,7 +897,7 @@ class BlunixWindow(Gtk.ApplicationWindow):
                 desc_lbl.set_text(t("ff.not_allowed"))
             desc_lbl.add_css_class("dim-label")
             row_box.append(desc_lbl)
-            self.flags_list.append(row_box)
+            self.flags_list.append(lrow)
 
     def _on_allow_selected(self, *args) -> None:
         name = self.allow_dd.get_model().get_string(self.allow_dd.get_selected())
@@ -918,12 +922,9 @@ class BlunixWindow(Gtk.ApplicationWindow):
         row = self.flags_list.get_selected_row()
         if row is None:
             return
-        child = row.get_child()
-        if isinstance(child, Gtk.Box):
-            title_lbl = child.get_first_child()
-            name = title_lbl.get_text().rsplit(" = ", 1)[0]
-        else:
-            name = child.get_text().rsplit(" = ", 1)[0]
+        name = getattr(row, "_blunix_flag_name", None)
+        if not name:
+            return
         fflags.remove_flag(name)
         self._refresh_flags()
 
@@ -971,12 +972,15 @@ class BlunixWindow(Gtk.ApplicationWindow):
             self.mods_list.append(empty)
             return
         for m in installed:
+            row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                          margin_top=4, margin_bottom=4, margin_start=8, margin_end=8)
+            lrow = Gtk.ListBoxRow()
+            lrow._blunix_mod_path = m.rel_path
+            lrow.set_child(row)
             lbl = Gtk.Label(label=f"{m.rel_path}  ({m.size} bytes)")
             lbl.set_halign(Gtk.Align.START)
-            lbl.set_margin_top(4)
-            lbl.set_margin_bottom(4)
-            lbl.set_margin_start(8)
-            self.mods_list.append(lbl)
+            row.append(lbl)
+            self.mods_list.append(lrow)
 
     def _on_install_mod(self, _btn: Gtk.Button) -> None:
         def on_open(dialog, result):
@@ -1006,10 +1010,9 @@ class BlunixWindow(Gtk.ApplicationWindow):
         row = self.mods_list.get_selected_row()
         if row is None:
             return
-        text = row.get_child().get_text()
-        if text.startswith("("):
+        rel = getattr(row, "_blunix_mod_path", None)
+        if not rel:
             return
-        rel = text.rsplit("  (", 1)[0]
         try:
             mods.remove_path(rel)
             self._refresh_mods()
@@ -1063,13 +1066,16 @@ class BlunixWindow(Gtk.ApplicationWindow):
             self.backups_list.append(empty)
             return
         for info in infos:
+            row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                          margin_top=4, margin_bottom=4, margin_start=8, margin_end=8)
+            lrow = Gtk.ListBoxRow()
+            lrow._blunix_backup_stamp = info.stamp
+            lrow.set_child(row)
             size = info.path.stat().st_size
             lbl = Gtk.Label(label=f"{info.stamp}  ({size} bytes)")
             lbl.set_halign(Gtk.Align.START)
-            lbl.set_margin_top(4)
-            lbl.set_margin_bottom(4)
-            lbl.set_margin_start(8)
-            self.backups_list.append(lbl)
+            row.append(lbl)
+            self.backups_list.append(lrow)
 
     def _on_backup_create(self, _btn: Gtk.Button) -> None:
         try:
@@ -1083,7 +1089,9 @@ class BlunixWindow(Gtk.ApplicationWindow):
         row = self.backups_list.get_selected_row()
         if row is None:
             return
-        stamp = row.get_child().get_text().split("  (", 1)[0]
+        stamp = getattr(row, "_blunix_backup_stamp", None)
+        if not stamp:
+            return
         if not _confirm(self, t("bk.q_restore"), t("bk.q_restore_detail", name=f"{stamp}.json")):
             return
         try:

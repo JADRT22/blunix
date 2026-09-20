@@ -148,20 +148,25 @@ def install_menu() -> MenuInstallResult:
     desktop = f"""[Desktop Entry]
 Type=Application
 Name=Blunix
-GenericName=Roblox para Linux
-Comment=Abra o Roblox (Sober) com um clique — configs, flags e mods
+GenericName=Roblox for Linux
+Comment=Open Roblox (Sober) with one click — configs, flags and mods
 Exec={exec_line}
 Icon={icon_field}
 Categories=Game;Utility;
-Keywords=roblox;sober;launcher;jogar;
+Keywords=roblox;sober;launcher;play;bloxstrap;
 Terminal=false
 StartupWMClass=Blunix
 """
     target = apps_dir / f"{DESKTOP_ID}.desktop"
-    target.write_text(desktop, encoding="utf-8")
-    os.chmod(target, 0o755)
-
-    _refresh_db()
+    try:
+        unchanged = target.is_file() and target.read_text(encoding="utf-8") == desktop
+    except OSError:
+        unchanged = False
+    if not unchanged:
+        target.write_text(desktop, encoding="utf-8")
+        os.chmod(target, 0o755)
+        # caches só precisam saber quando o conteúdo muda (kbuildsycoca é caro)
+        _refresh_db()
     return MenuInstallResult(desktop_path=target, icon_path=installed_icon, exec_line=exec_line)
 
 

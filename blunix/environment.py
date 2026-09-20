@@ -10,6 +10,7 @@ from __future__ import annotations
 import platform
 import shutil
 import subprocess
+import time
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
@@ -76,7 +77,25 @@ def _vulkaninfo_available() -> bool:
     return shutil.which("vulkaninfo") is not None
 
 
-def run_checks() -> list[Check]:
+_CACHE: tuple[float, list[Check]] | None = None
+
+
+def run_checks(*, use_cache: bool = True) -> list[Check]:
+    """Roda as checagens; com cache de 30s (subprocessos custam até dezenas de s).
+
+    use_cache=False força reexecução (botão 'Verificar de novo').
+    """
+    global _CACHE
+    if use_cache and _CACHE is not None:
+        ts, value = _CACHE
+        if (time.monotonic() - ts) < 30.0:
+            return value
+    result = _run_checks_uncached()
+    _CACHE = (time.monotonic(), result)
+    return result
+
+
+def _run_checks_uncached() -> list[Check]:
     checks: list[Check] = []
 
     arch = platform.machine()
