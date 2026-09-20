@@ -37,8 +37,8 @@ jobs:
           files: Blunix-*.AppImage
           generate_release_notes: true
           body: |
-            **Jeito fácil:** baixe o `Blunix-*.AppImage` abaixo, marque como
-            executável (`chmod +x`) e dê duplo clique. Requer o Sober:
-            `flatpak install flathub org.vinegarhq.Sober`
+            **Easy way:** download the `Blunix-*.AppImage` asset below, mark it
+            as executable (`chmod +x`) and run it (double-click works too).
+            Requires Sober: `flatpak install flathub org.vinegarhq.Sober`
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
