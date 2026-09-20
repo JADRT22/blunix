@@ -15,6 +15,7 @@ from enum import Enum
 from pathlib import Path
 
 from . import constants
+from .i18n import t
 
 
 class Status(Enum):
@@ -80,36 +81,37 @@ def run_checks() -> list[Check]:
 
     arch = platform.machine()
     checks.append(Check(
-        "Arquitetura",
+        t("chk.arch"),
         Status.OK if arch == "x86_64" else Status.WARN,
-        f"{arch}" + ("" if arch == "x86_64" else " (Sober oficial é x86_64; ARM é beta)"),
+        arch + ("" if arch == "x86_64" else t("chk.arch.arm")),
     ))
 
     flags = _cpu_flags()
     sse = all(f in flags for f in ("sse4_1", "sse4_2"))
     checks.append(Check(
-        "CPU SSE4.1/4.2",
+        t("chk.sse"),
         Status.OK if sse else Status.FAIL,
-        "presentes" if sse else "AUSENTES — o Sober não vai rodar",
+        t("chk.sse.ok") if sse else t("chk.sse.fail"),
     ))
 
+    flatpak = _flatpak_installed()
     checks.append(Check(
-        "Flatpak",
-        Status.OK if _flatpak_installed() else Status.FAIL,
-        "instalado" if _flatpak_installed() else "não encontrado no PATH",
+        t("chk.flatpak"),
+        Status.OK if flatpak else Status.FAIL,
+        t("chk.flatpak.ok") if flatpak else t("chk.flatpak.fail"),
     ))
 
-    if _flatpak_installed():
+    if flatpak:
         installed = _flatpak_app_installed(constants.FLATPAK_APP_ID)
         ver = _sober_version() if installed else None
         checks.append(Check(
-            "Sober",
+            t("chk.sober"),
             Status.OK if installed else Status.FAIL,
-            f"instalado (versão {ver})" if ver else
-            ("instalado" if installed else f"não instalado — 'flatpak install flathub {constants.FLATPAK_APP_ID}'"),
+            t("chk.sober.ok", ver=ver) if ver else
+            (t("chk.sober.ok_nover") if installed else t("chk.sober.fail", app_id=constants.FLATPAK_APP_ID)),
         ))
     else:
-        checks.append(Check("Sober", Status.FAIL, "impossível verificar sem flatpak"))
+        checks.append(Check(t("chk.sober"), Status.FAIL, t("chk.sober.unknown")))
 
     if _vulkaninfo_available():
         try:
@@ -120,22 +122,22 @@ def run_checks() -> list[Check]:
         except OSError:
             ok = False
         checks.append(Check(
-            "Vulkan",
+            t("chk.vulkan"),
             Status.OK if ok else Status.WARN,
-            "disponível" if ok else "presente mas falhou (Sober cai p/ OpenGL)",
+            t("chk.vulkan.ok") if ok else t("chk.vulkan.warn_fail"),
         ))
     else:
         checks.append(Check(
-            "Vulkan",
+            t("chk.vulkan"),
             Status.WARN,
-            "vulkaninfo não instalado — não dá para verificar (Sober usa OpenGL como fallback)",
+            t("chk.vulkan.warn_missing"),
         ))
 
     cfg = constants.SOBER_CONFIG_FILE
     checks.append(Check(
-        "Config do Sober",
+        t("chk.cfg"),
         Status.OK if cfg.is_file() else Status.WARN,
-        str(cfg) if cfg.is_file() else "ainda não existe (criada no 1º boot do Sober)",
+        t("chk.cfg.ok") if cfg.is_file() else t("chk.cfg.warn"),
     ))
 
     return checks

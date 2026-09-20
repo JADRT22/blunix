@@ -1,4 +1,5 @@
-"""GUI GTK4 do Blunix: abas Geral, Config, FastFlags, Mods e Backups.
+"""GUI GTK4 do Blunix: menu compacto + janela de configuração (Sistema, Config,
+FastFlags, Mods, Backups). Textos em PT/EN via i18n.
 
 Importada apenas quando a GUI é solicitada, para o CLI funcionar sem GTK.
 """
@@ -13,6 +14,7 @@ gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk, Gio, GLib, Gdk  # noqa: E402
 
 from . import backups, config, constants, desktop_integration, environment, fflags, launcher, mods, settings  # noqa: E402
+from .i18n import t  # noqa: E402
 
 
 def _message_dialog(
@@ -63,7 +65,7 @@ def _message_dialog(
 def _toast(parent: Gtk.Window, title: str, detail: str = "", error: bool = False) -> None:
     dlg = _message_dialog(
         parent, title, detail,
-        buttons=[("OK", Gtk.ResponseType.OK)],
+        buttons=[(t("dlg.ok"), Gtk.ResponseType.OK)],
         icon="dialog-error" if error else "dialog-information",
     )
     dlg.connect("response", lambda d, _r: d.destroy())
@@ -79,7 +81,7 @@ def _confirm(parent: Gtk.Window, title: str, detail: str) -> bool:
 
     dlg = _message_dialog(
         parent, title, detail,
-        buttons=[("Não", Gtk.ResponseType.NO), ("Sim", Gtk.ResponseType.YES)],
+        buttons=[(t("dlg.no"), Gtk.ResponseType.NO), (t("dlg.yes"), Gtk.ResponseType.YES)],
         icon="dialog-question",
     )
     dlg.connect("response", on_answer)
@@ -105,11 +107,11 @@ class BlunixWindow(Gtk.ApplicationWindow):
         # botões manuais: só minimizar e fechar
         btn_min = Gtk.Button.new_from_icon_name("window-minimize-symbolic")
         btn_min.add_css_class("flat")
-        btn_min.set_tooltip_text("Minimizar")
+        btn_min.set_tooltip_text(t("win.minimize"))
         btn_min.connect("clicked", lambda *_a: self.minimize())
         btn_close = Gtk.Button.new_from_icon_name("window-close-symbolic")
         btn_close.add_css_class("flat")
-        btn_close.set_tooltip_text("Fechar")
+        btn_close.set_tooltip_text(t("win.close"))
         btn_close.connect("clicked", lambda *_a: self._on_main_close())
         header.pack_end(btn_close)
         header.pack_end(btn_min)
@@ -129,7 +131,7 @@ class BlunixWindow(Gtk.ApplicationWindow):
     def _build_settings_window(self) -> None:
         """Configuração abre em uma janela separada (o menu permanece pequeno)."""
         self.settings_win = Gtk.ApplicationWindow(application=self.get_application())
-        self.settings_win.set_title(f"{constants.APP_NAME} — Configuração")
+        self.settings_win.set_title(t("win.settings"))
         self.settings_win.set_default_size(860, 620)
         self.settings_win.set_icon_name(desktop_integration.DESKTOP_ID)
         # sem maximizar/tela cheia: só minimizar e fechar (redimensionar livre)
@@ -160,11 +162,11 @@ class BlunixWindow(Gtk.ApplicationWindow):
         self.settings_win.set_child(page)
         self.settings_win.connect("notify::fullscreened", self._block_fullscreen)
 
-        self.inner_stack.add_titled(self._build_system_tab(), "system", "Sistema")
-        self.inner_stack.add_titled(self._build_config_tab(), "config", "Config")
-        self.inner_stack.add_titled(self._build_fflags_tab(), "fflags", "FastFlags")
-        self.inner_stack.add_titled(self._build_mods_tab(), "mods", "Mods")
-        self.inner_stack.add_titled(self._build_backups_tab(), "backups", "Backups")
+        self.inner_stack.add_titled(self._build_system_tab(), "system", t("tab.system"))
+        self.inner_stack.add_titled(self._build_config_tab(), "config", t("tab.config"))
+        self.inner_stack.add_titled(self._build_fflags_tab(), "fflags", t("tab.fflags"))
+        self.inner_stack.add_titled(self._build_mods_tab(), "mods", t("tab.mods"))
+        self.inner_stack.add_titled(self._build_backups_tab(), "backups", t("tab.backups"))
 
     def _open_settings(self) -> None:
         self.settings_win.present()
@@ -218,7 +220,7 @@ class BlunixWindow(Gtk.ApplicationWindow):
         )
 
     # ------------------------------------------------------------ Início (modo simples)
-    PROFILE_LABELS = (("Leve", "leve"), ("Médio", "medio"), ("Completo", "completo"), ("Padrão (sem preset)", "default"))
+    PROFILE_LABELS = (("leve", "leve"), ("medio", "medio"), ("completo", "completo"), ("default", "default"))
 
     def _build_menu_page(self) -> Gtk.Widget:
         """Menu compacto: logo à esquerda; JOGAR (azul-escuro) em cima,
@@ -250,8 +252,8 @@ class BlunixWindow(Gtk.ApplicationWindow):
         play_content = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=1,
                                margin_top=10, margin_bottom=10, margin_start=22, margin_end=22)
         p1 = Gtk.Label()
-        p1.set_markup("<b>🎮  JOGAR</b>")
-        p2 = Gtk.Label(label="abre o Roblox com seu perfil")
+        p1.set_markup(f"<b>{t('menu.play')}</b>")
+        p2 = Gtk.Label(label=t("menu.play_sub"))
         p2.add_css_class("dim")
         play_content.append(p1)
         play_content.append(p2)
@@ -265,8 +267,8 @@ class BlunixWindow(Gtk.ApplicationWindow):
         conf_content = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=1,
                                margin_top=8, margin_bottom=8, margin_start=22, margin_end=22)
         c1 = Gtk.Label()
-        c1.set_markup("<b>⚙  Configuração</b>")
-        c2 = Gtk.Label(label="gráficos, flags, mods e sistema")
+        c1.set_markup(f"<b>{t('menu.conf')}</b>")
+        c2 = Gtk.Label(label=t("menu.conf_sub"))
         c2.add_css_class("dim")
         conf_content.append(c1)
         conf_content.append(c2)
@@ -295,10 +297,10 @@ class BlunixWindow(Gtk.ApplicationWindow):
         prof_card = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8,
                             margin_top=10, margin_bottom=10, margin_start=10, margin_end=10)
         prof_card.add_css_class("card")
-        t = Gtk.Label()
-        t.set_markup("<b>Perfil de qualidade (usado pelo botão JOGAR)</b>")
-        t.set_halign(Gtk.Align.START)
-        prof_card.append(t)
+        t_lbl = Gtk.Label()
+        t_lbl.set_markup(f"<b>{t('sys.profile_title')}</b>")
+        t_lbl.set_halign(Gtk.Align.START)
+        prof_card.append(t_lbl)
 
         row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
         self.profile_dd = Gtk.DropDown(model=Gtk.StringList.new([lbl for lbl, _k in self.PROFILE_LABELS]))
@@ -306,7 +308,7 @@ class BlunixWindow(Gtk.ApplicationWindow):
         keys = [k for _lbl, k in self.PROFILE_LABELS]
         if saved in keys:
             self.profile_dd.set_selected(keys.index(saved))
-        btn_apply = Gtk.Button(label="Aplicar agora")
+        btn_apply = Gtk.Button(label=t("sys.apply_now"))
         btn_apply.add_css_class("suggested-action")
         btn_apply.connect("clicked", self._on_apply_profile_now)
         row.append(self.profile_dd)
@@ -325,8 +327,8 @@ class BlunixWindow(Gtk.ApplicationWindow):
         link_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
         self.link_entry = Gtk.Entry()
         self.link_entry.set_hexpand(True)
-        self.link_entry.set_placeholder_text("nº do jogo ou link (ex.: 2753915549)")
-        btn_open = Gtk.Button(label="Abrir jogo")
+        self.link_entry.set_placeholder_text(t("sys.link_ph"))
+        btn_open = Gtk.Button(label=t("sys.open_game"))
         btn_open.connect("clicked", self._on_open_link)
         link_row.append(self.link_entry)
         link_row.append(btn_open)
@@ -335,7 +337,7 @@ class BlunixWindow(Gtk.ApplicationWindow):
 
         # ---- diagnóstico
         lbl = Gtk.Label()
-        lbl.set_markup("<b>Diagnóstico do sistema</b>")
+        lbl.set_markup(f"<b>{t('sys.diag')}</b>")
         lbl.set_halign(Gtk.Align.START)
         outer.append(lbl)
 
@@ -344,16 +346,35 @@ class BlunixWindow(Gtk.ApplicationWindow):
         self.checks_list.add_css_class("boxed-list")
         outer.append(self._scrolled(self.checks_list))
 
-        btn_refresh = Gtk.Button(label="Verificar de novo")
+        btn_refresh = Gtk.Button(label=t("sys.refresh"))
         btn_refresh.connect("clicked", lambda _b: self._refresh_checks())
         btn_refresh.set_halign(Gtk.Align.START)
         outer.append(btn_refresh)
+
+        # ---- idioma
+        lang_lbl = Gtk.Label()
+        lang_lbl.set_markup(f"<b>{t('lang.label')}</b>")
+        lang_lbl.set_halign(Gtk.Align.START)
+        outer.append(lang_lbl)
+        lang_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+        self.lang_dd = Gtk.DropDown(model=Gtk.StringList.new([t("lang.auto"), "Português (BR)", "English"]))
+        saved_lang = settings.load().get("language", "auto")
+        self.lang_dd.set_selected({"auto": 0, "pt": 1, "en": 2}.get(saved_lang, 0))
+        self.lang_dd.connect("notify::selected", self._on_lang_changed)
+        lang_row.append(self.lang_dd)
+        lang_row.set_halign(Gtk.Align.START)
+        outer.append(lang_row)
+        lang_hint = Gtk.Label()
+        lang_hint.set_markup(f"<small>{t('lang.restart')}</small>")
+        lang_hint.set_halign(Gtk.Align.START)
+        outer.append(lang_hint)
+
         self._refresh_checks()
         return outer
 
     def _on_profile_desc(self, *args) -> None:
         key = self._selected_profile()
-        self.profile_desc.set_text(constants.PRESET_DESCRIPTIONS.get(key, ""))
+        self.profile_desc.set_text(t(f"desc.{key}"))
 
     def _on_apply_profile_now(self, _btn: Gtk.Button) -> None:
         key = self._selected_profile()
@@ -361,9 +382,9 @@ class BlunixWindow(Gtk.ApplicationWindow):
             flags = fflags.stage_preset(key)
             config.write_config({"fflags": flags})
             settings.save({"profile": key})
-            _toast(self, f"Perfil '{key}' aplicado", "Reinicie o Roblox para valer.")
+            _toast(self, t("sys.profile_applied", name=key), t("sys.restart_roblox"))
         except (fflags.FFFlagError, ValueError, OSError) as exc:
-            _toast(self, "Erro ao aplicar", str(exc), error=True)
+            _toast(self, t("dlg.err_profile"), str(exc), error=True)
 
     def _update_home_status(self) -> None:
         """Linha de status compacta do menu (detalhes ficam na aba Sistema)."""
@@ -374,18 +395,24 @@ class BlunixWindow(Gtk.ApplicationWindow):
         else:
             fails = [c for c in checks if c.status == environment.Status.FAIL]
             names = ", ".join(c.name for c in fails)
-            self.home_status.set_text("⚠ Falta: " + names)
+            self.home_status.set_text(t("menu.falta", items=names))
             self.home_status.set_visible(True)
 
     def _selected_profile(self) -> str:
         idx = self.profile_dd.get_selected()
         return self.PROFILE_LABELS[min(idx, len(self.PROFILE_LABELS) - 1)][1]
 
+    def _on_lang_changed(self, *_a) -> None:
+        """Salva a escolha de idioma; vale na próxima vez que o app abrir."""
+        idx = self.lang_dd.get_selected()
+        value = {0: "auto", 1: "pt", 2: "en"}.get(idx, "auto")
+        settings.save({"language": value})
+
     def _play(self, place: str | None) -> None:
         checks = environment.run_checks()
         if not environment.all_ok(checks):
             fails = ", ".join(c.name for c in checks if c.status == environment.Status.FAIL)
-            _toast(self, "Não dá para abrir ainda", "Resolva primeiro: " + fails, error=True)
+            _toast(self, t("dlg.err_play"), t("dlg.err_play_detail", items=fails), error=True)
             return
         profile = self._selected_profile()
         try:
@@ -393,12 +420,12 @@ class BlunixWindow(Gtk.ApplicationWindow):
             config.write_config({"fflags": flags})
             settings.save({"profile": profile})
         except (fflags.FFFlagError, ValueError, OSError) as exc:
-            _toast(self, "Erro ao aplicar o perfil", str(exc), error=True)
+            _toast(self, t("dlg.err_profile"), str(exc), error=True)
             return
         try:
             launcher.launch(place)
         except launcher.LaunchError as exc:
-            _toast(self, "Erro ao abrir o Roblox", str(exc), error=True)
+            _toast(self, t("dlg.err_launch"), str(exc), error=True)
 
     def _on_big_play(self, _btn: Gtk.Button) -> None:
         self._play(None)
@@ -448,14 +475,14 @@ class BlunixWindow(Gtk.ApplicationWindow):
             launcher.launch(place)
             self.place_entry.set_text("")
         except launcher.LaunchError as exc:
-            _toast(self, "Erro ao lançar", str(exc), error=True)
+            _toast(self, t("dlg.err_launch"), str(exc), error=True)
 
     # ------------------------------------------------------------ Config
     def _build_config_tab(self) -> Gtk.Widget:
         outer = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12,
                         margin_top=12, margin_bottom=12, margin_start=12, margin_end=12)
         hint = Gtk.Label()
-        hint.set_markup("<small>Opções oficiais do Sober. Reinicie o Roblox após salvar.</small>")
+        hint.set_markup(f"<small>{t('cfg.hint')}</small>")
         hint.set_halign(Gtk.Align.START)
         outer.append(hint)
 
@@ -488,7 +515,7 @@ class BlunixWindow(Gtk.ApplicationWindow):
             row.append(w)
             rows.append(row)
 
-        save = Gtk.Button(label="Salvar configuração")
+        save = Gtk.Button(label=t("cfg.save"))
         save.add_css_class("suggested-action")
         save.connect("clicked", self._on_save_config)
 
@@ -506,9 +533,9 @@ class BlunixWindow(Gtk.ApplicationWindow):
                 updates[key] = widget.get_model().get_string(widget.get_selected())
         try:
             config.write_config(updates)
-            _toast(self, "Configuração salva", "Reinicie o Roblox (Sober) para aplicar.")
+            _toast(self, t("cfg.saved"), t("sys.restart_roblox"))
         except (ValueError, OSError) as exc:
-            _toast(self, "Erro ao salvar", str(exc), error=True)
+            _toast(self, t("dlg.err_save"), str(exc), error=True)
 
     # ------------------------------------------------------------ FastFlags
     def _build_fflags_tab(self) -> Gtk.Widget:
@@ -516,10 +543,7 @@ class BlunixWindow(Gtk.ApplicationWindow):
                         margin_top=12, margin_bottom=12, margin_start=12, margin_end=12)
 
         warn = Gtk.Label()
-        warn.set_markup(
-            "<small>⚠ A Roblox só aceita uma lista fixa de flags (desde 30/09/2025). "
-            "Tudo aqui está dentro dessa lista. Reinicie o Roblox depois de mudar.</small>"
-        )
+        warn.set_markup(f"<small>{t('ff.warn')}</small>")
         warn.set_halign(Gtk.Align.START)
         warn.set_wrap(True)
         outer.append(warn)
@@ -528,7 +552,7 @@ class BlunixWindow(Gtk.ApplicationWindow):
         outer.append(Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL))
 
         lbl_active = Gtk.Label()
-        lbl_active.set_markup("<b>Flags ativas</b> (o que cada uma faz)")
+        lbl_active.set_markup(f"<b>{t('ff.active')}</b>")
         lbl_active.set_halign(Gtk.Align.START)
         outer.append(lbl_active)
 
@@ -539,14 +563,14 @@ class BlunixWindow(Gtk.ApplicationWindow):
         outer.append(self._scrolled(self.flags_list))
 
         unset_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
-        btn_unset = Gtk.Button(label="Remover flag selecionada")
+        btn_unset = Gtk.Button(label=t("ff.remove_selected"))
         btn_unset.connect("clicked", self._on_unset_flag)
         unset_row.set_halign(Gtk.Align.START)
         unset_row.append(btn_unset)
         outer.append(unset_row)
 
         lbl_adv = Gtk.Label()
-        lbl_adv.set_markup("<b>Avançado: definir flag manualmente</b>")
+        lbl_adv.set_markup(f"<b>{t('ff.adv')}</b>")
         lbl_adv.set_halign(Gtk.Align.START)
         outer.append(lbl_adv)
 
@@ -555,11 +579,11 @@ class BlunixWindow(Gtk.ApplicationWindow):
         self.allow_dd = Gtk.DropDown(model=Gtk.StringList.new(allowed_names))
         self.allow_dd.connect("notify::selected", self._on_allow_selected)
         self.value_entry = Gtk.Entry()
-        self.value_entry.set_placeholder_text("valor (true/false ou número)")
+        self.value_entry.set_placeholder_text(t("ff.value_ph"))
         self.flag_hint = Gtk.Label(label="")
         self.flag_hint.set_halign(Gtk.Align.START)
         self.flag_hint.set_wrap(True)
-        btn_set = Gtk.Button(label="Definir")
+        btn_set = Gtk.Button(label=t("ff.set"))
         btn_set.add_css_class("suggested-action")
         btn_set.connect("clicked", self._on_set_flag)
         add_box.append(self.allow_dd)
@@ -578,15 +602,15 @@ class BlunixWindow(Gtk.ApplicationWindow):
         card.add_css_class("card")
 
         title = Gtk.Label()
-        title.set_markup("<b>Recomendado</b> — escolha o quanto quer mudar no visual:")
+        title.set_markup(f"<b>{t('ff.recommended')}</b>")
         title.set_halign(Gtk.Align.START)
         card.append(title)
 
         row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8, homogeneous=True)
         levels = (
-            ("leve", "Leve", "muda pouco"),
-            ("medio", "Médio", "equilibrado"),
-            ("completo", "Completo", "muda muito"),
+            ("leve", t("ff.level_leve"), t("ff.sub_leve")),
+            ("medio", t("ff.level_medio"), t("ff.sub_medio")),
+            ("completo", t("ff.level_completo"), t("ff.sub_completo")),
         )
         for key, txt, sub in levels:
             inner = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
@@ -602,38 +626,34 @@ class BlunixWindow(Gtk.ApplicationWindow):
             row.append(btn)
         card.append(row)
 
-        btn_reset = Gtk.Button(label="Voltar ao padrão (limpar flags de preset)")
+        btn_reset = Gtk.Button(label=t("ff.reset_presets"))
         btn_reset.connect("clicked", self._on_reset_presets)
         btn_reset.set_halign(Gtk.Align.START)
         card.append(btn_reset)
         return card
 
     def _on_level_clicked(self, _btn: Gtk.Button, key: str) -> None:
-        desc = constants.PRESET_DESCRIPTIONS.get(key, "")
         if not _confirm(
             self,
-            f"Aplicar preset {key.capitalize()}?",
-            desc + "\n\nIsso substitui as flags dos outros presets; flags que você "
-                   "definou manualmente são mantidas.",
+            t("ff.q_apply", name=key.capitalize()),
+            t("ff.q_apply_detail", desc=t(f"desc.{key}")),
         ):
             return
         try:
             fflags.apply_preset(key)
             self._refresh_flags()
-            _toast(self, f"Preset {key.capitalize()} aplicado", "Reinicie o Roblox para valer.")
+            _toast(self, t("ff.q_apply", name=key.capitalize()), t("sys.restart_roblox"))
         except (fflags.FFFlagError, ValueError) as exc:
-            _toast(self, "Erro no preset", str(exc), error=True)
+            _toast(self, t("dlg.err_profile"), str(exc), error=True)
 
     def _on_reset_presets(self, _btn: Gtk.Button) -> None:
-        if not _confirm(self, "Limpar flags de preset?",
-                        "Volta ao comportamento padrão do Sober. Flags definidas "
-                        "manualmente são mantidas."):
+        if not _confirm(self, t("ff.q_reset"), t("ff.q_reset_detail")):
             return
         try:
             fflags.apply_preset("default")
             self._refresh_flags()
         except (fflags.FFFlagError, ValueError) as exc:
-            _toast(self, "Erro", str(exc), error=True)
+            _toast(self, t("dlg.err_restore"), str(exc), error=True)
 
     def _refresh_flags(self) -> None:
         child = self.flags_list.get_first_child()
@@ -643,7 +663,7 @@ class BlunixWindow(Gtk.ApplicationWindow):
             child = nxt
         current = fflags.current_fflags()
         if not current:
-            empty = Gtk.Label(label="(nenhuma flag definida — comportamento padrão do Sober)")
+            empty = Gtk.Label(label=t("ff.empty"))
             empty.set_halign(Gtk.Align.START)
             empty.set_margin_start(8)
             empty.set_margin_top(6)
@@ -663,7 +683,7 @@ class BlunixWindow(Gtk.ApplicationWindow):
             if entry:
                 desc_lbl.set_text(entry[1])
             else:
-                desc_lbl.set_text("(fora da allowlist — não tem efeito)")
+                desc_lbl.set_text(t("ff.not_allowed"))
             desc_lbl.add_css_class("dim-label")
             row_box.append(desc_lbl)
             self.flags_list.append(row_box)
@@ -705,19 +725,18 @@ class BlunixWindow(Gtk.ApplicationWindow):
         outer = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10,
                         margin_top=12, margin_bottom=12, margin_start=12, margin_end=12)
         hint = Gtk.Label()
-        hint.set_markup("<small>Mods vão para o asset_overlay do Sober, espelhando a estrutura do base.apk "
-                        "(ex.: content/textures/Cursors/...). Reinicie o Roblox para aplicar.</small>")
+        hint.set_markup(f"<small>{t('mods.hint')}</small>")
         hint.set_halign(Gtk.Align.START)
         hint.set_wrap(True)
         outer.append(hint)
 
         btn_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
-        btn_install = Gtk.Button(label="Instalar mod (.zip)…")
+        btn_install = Gtk.Button(label=t("mods.install"))
         btn_install.add_css_class("suggested-action")
         btn_install.connect("clicked", self._on_install_mod)
-        btn_remove = Gtk.Button(label="Remover selecionado")
+        btn_remove = Gtk.Button(label=t("mods.remove"))
         btn_remove.connect("clicked", self._on_remove_mod)
-        btn_clear = Gtk.Button(label="Limpar tudo")
+        btn_clear = Gtk.Button(label=t("mods.clear"))
         btn_clear.connect("clicked", self._on_clear_mods)
         btn_row.append(btn_install)
         btn_row.append(btn_remove)
@@ -739,7 +758,7 @@ class BlunixWindow(Gtk.ApplicationWindow):
             child = nxt
         installed = mods.list_mods()
         if not installed:
-            empty = Gtk.Label(label="(nenhum mod instalado)")
+            empty = Gtk.Label(label=t("mods.empty"))
             empty.set_halign(Gtk.Align.START)
             empty.set_margin_start(8)
             self.mods_list.append(empty)
@@ -763,9 +782,9 @@ class BlunixWindow(Gtk.ApplicationWindow):
             try:
                 installed = mods.install_zip(Path(file.get_path()))
                 self._refresh_mods()
-                _toast(self, f"Mod instalado ({len(installed)} arquivo(s))", "Reinicie o Roblox para aplicar.")
+                _toast(self, t("mods.installed", n=len(installed)), t("sys.restart_roblox"))
             except mods.ModError as exc:
-                _toast(self, "Erro ao instalar mod", str(exc), error=True)
+                _toast(self, t("mods.err_install"), str(exc), error=True)
 
         dialog = Gtk.FileDialog()
         filters = Gio.ListStore.new(Gtk.FileFilter)
@@ -788,10 +807,10 @@ class BlunixWindow(Gtk.ApplicationWindow):
             mods.remove_path(rel)
             self._refresh_mods()
         except mods.ModError as exc:
-            _toast(self, "Erro ao remover", str(exc), error=True)
+            _toast(self, t("mods.err_remove"), str(exc), error=True)
 
     def _on_clear_mods(self, _btn: Gtk.Button) -> None:
-        if not _confirm(self, "Limpar todos os mods?", "Todos os arquivos do asset_overlay serão removidos."):
+        if not _confirm(self, t("mods.q_clear"), t("mods.q_clear_detail")):
             return
         mods.clear_all()
         self._refresh_mods()
@@ -801,17 +820,16 @@ class BlunixWindow(Gtk.ApplicationWindow):
         outer = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10,
                         margin_top=12, margin_bottom=12, margin_start=12, margin_end=12)
         hint = Gtk.Label()
-        hint.set_markup(f"<small>Backups do config.json em {constants.BLUNIX_BACKUP_DIR}. "
-                        "Nunca incluem cookies/sessão.</small>")
+        hint.set_markup(f"<small>{t('bk.hint', path=constants.BLUNIX_BACKUP_DIR)}</small>")
         hint.set_halign(Gtk.Align.START)
         hint.set_wrap(True)
         outer.append(hint)
 
         btn_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
-        btn_new = Gtk.Button(label="Criar backup")
+        btn_new = Gtk.Button(label=t("bk.create"))
         btn_new.add_css_class("suggested-action")
         btn_new.connect("clicked", self._on_backup_create)
-        btn_restore = Gtk.Button(label="Restaurar selecionado")
+        btn_restore = Gtk.Button(label=t("bk.restore"))
         btn_restore.connect("clicked", self._on_backup_restore)
         btn_row.append(btn_new)
         btn_row.append(btn_restore)
@@ -832,7 +850,7 @@ class BlunixWindow(Gtk.ApplicationWindow):
             child = nxt
         infos = backups.list_backups()
         if not infos:
-            empty = Gtk.Label(label="(nenhum backup)")
+            empty = Gtk.Label(label=t("bk.empty"))
             empty.set_halign(Gtk.Align.START)
             empty.set_margin_start(8)
             self.backups_list.append(empty)
@@ -850,22 +868,22 @@ class BlunixWindow(Gtk.ApplicationWindow):
         try:
             info = backups.create_backup()
             self._refresh_backups()
-            _toast(self, "Backup criado", info.path.name)
+            _toast(self, t("bk.created"), info.path.name)
         except FileNotFoundError as exc:
-            _toast(self, "Erro", str(exc), error=True)
+            _toast(self, t("dlg.err_restore"), str(exc), error=True)
 
     def _on_backup_restore(self, _btn: Gtk.Button) -> None:
         row = self.backups_list.get_selected_row()
         if row is None:
             return
         stamp = row.get_child().get_text().split("  (", 1)[0]
-        if not _confirm(self, "Restaurar backup?", f"O config.json atual será substituído por {stamp}.json"):
+        if not _confirm(self, t("bk.q_restore"), t("bk.q_restore_detail", name=f"{stamp}.json")):
             return
         try:
             backups.restore_backup(Path(f"{stamp}.json"))
-            _toast(self, "Backup restaurado", "Reinicie o Sober para aplicar.")
+            _toast(self, t("bk.restored"), t("sys.restart_roblox"))
         except FileNotFoundError as exc:
-            _toast(self, "Erro", str(exc), error=True)
+            _toast(self, t("dlg.err_restore"), str(exc), error=True)
 
 
 class BlunixApp(Gtk.Application):

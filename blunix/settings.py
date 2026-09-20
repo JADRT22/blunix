@@ -9,7 +9,7 @@ from pathlib import Path
 
 from . import constants
 
-_DEFAULTS = {"profile": "medio"}
+_DEFAULTS = {"profile": "medio", "language": "auto"}
 
 
 def _path() -> Path:
