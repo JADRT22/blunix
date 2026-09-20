@@ -1,4 +1,8 @@
-# Blunix
+# Blunix (Português)
+
+> [!NOTE]
+> Este é o README secundário. O principal, em inglês, está aqui:
+> **[README.md](README.md)** 🇬🇧
 
 **Blunix** é um gerenciador estilo Bloxstrap para Linux, construído sobre o
 [Sober](https://sober.vinegarhq.org/) — o runtime da VinegarHQ que roda o
@@ -87,6 +91,7 @@ ficam escondidos atrás de um botão.
 blunix play              # abre o Roblox
 blunix play 2753915549   # abre um jogo pelo número
 blunix play "https://www.roblox.com/games/2753915549/Brookhaven-RP"   # link do site
+blunix play --profile light|medium|full   # aliases em inglês (ou leve/medio/completo)
 ```
 
 ## Requisitos

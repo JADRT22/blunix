@@ -226,13 +226,15 @@ def cmd_play(args: argparse.Namespace) -> int:
     É aqui que o Blunix agrega valor: o perfil entra em vigor no momento em
     que você joga. Abrir o Sober direto continua funcionando normalmente.
     """
+    # aliases em inglês (docs/repo são English-first)
+    _ALIASES = {"light": "leve", "medium": "medio", "full": "completo",
+                "default": "default", "padrao": "default"}
     profile = args.profile
     if profile is None:
         profile = settings.load().get("profile", "medio")
     else:
-        settings.save({"profile": "default" if profile == "padrao" else profile})  # lembra a escolha
-    if profile == "padrao":
-        profile = "default"  # alias amigável do CLI
+        profile = _ALIASES.get(profile, profile)
+        settings.save({"profile": profile})  # lembra a escolha
 
     if profile != "off":
         try:
@@ -318,8 +320,10 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("place", nargs="?", default=None,
                    help="número do jogo (placeId), link roblox:// ou URL do site")
     p.add_argument("--profile", default=None,
-                   choices=["leve", "medio", "completo", "padrao", "off"],
-                   help="perfil de flags (padrão: o último usado, inicialmente 'medio')")
+                   choices=["leve", "medio", "completo", "padrao", "off",
+                            "light", "medium", "full", "default"],
+                   help="flag profile (default: last used, initially 'medium'; "
+                        "pt aliases: leve/medio/completo/padrao)")
     p.add_argument("--wait", action="store_true", help="espera o processo terminar")
     p.add_argument("--new", action="store_true", help="abre mesmo se já houver Roblox rodando")
     p.set_defaults(func=cmd_play)
