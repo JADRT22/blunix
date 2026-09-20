@@ -407,9 +407,11 @@ class SoberixWindow(Gtk.ApplicationWindow):
         lang_lbl.set_halign(Gtk.Align.START)
         outer.append(lang_lbl)
         lang_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
-        self.lang_dd = Gtk.DropDown(model=Gtk.StringList.new([t("lang.auto"), "Português (BR)", "English"]))
+        _names = [t("lang.auto"), "Português (BR)", "English", "Español", "Français", "Deutsch", "Русский", "日本語"]
+        self.lang_dd = Gtk.DropDown(model=Gtk.StringList.new(_names))
         saved_lang = settings.load().get("language", "auto")
-        self.lang_dd.set_selected({"auto": 0, "pt": 1, "en": 2}.get(saved_lang, 0))
+        _codes = ("auto", *i18n.SUPPORTED)
+        self.lang_dd.set_selected(_codes.index(saved_lang) if saved_lang in _codes else 0)
         self.lang_dd.connect("notify::selected", self._on_lang_changed)
         lang_row.append(self.lang_dd)
         lang_row.set_halign(Gtk.Align.START)
@@ -419,11 +421,53 @@ class SoberixWindow(Gtk.ApplicationWindow):
         lang_hint.set_halign(Gtk.Align.START)
         outer.append(lang_hint)
 
+        # ---- Discord Rich Presence (recurso nativo do Sober)
+        outer.append(self._build_discord_card())
+
         # ---- jogos (favoritos/recentes)
         outer.append(self._build_games_card())
 
         self._refresh_checks()
         return outer
+
+    # ------------------------------------------------------------ card Discord (Sistema)
+    def _build_discord_card(self) -> Gtk.Widget:
+        """Toggle do Rich Presence nativo do Sober (mostra o jogo no Discord)."""
+        card = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8,
+                       margin_top=10, margin_bottom=10, margin_start=10, margin_end=10)
+        card.add_css_class("card")
+        title = Gtk.Label()
+        title.set_markup(f"<b>{t('discord.title')}</b>")
+        title.set_halign(Gtk.Align.START)
+        card.append(title)
+
+        desc = Gtk.Label(label=t("discord.desc"))
+        desc.set_halign(Gtk.Align.START)
+        desc.set_wrap(True)
+        desc.add_css_class("dim-label")
+        card.append(desc)
+
+        row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+        lbl = Gtk.Label(label=t("discord.show_game"))
+        lbl.set_halign(Gtk.Align.START)
+        lbl.set_hexpand(True)
+        self.discord_switch = Gtk.Switch()
+        self.discord_switch.set_active(bool(config.read_config().get("discord_rpc_enabled", False)))
+        self.discord_switch.connect("state-set", self._on_discord_toggled)
+        row.append(lbl)
+        row.append(self.discord_switch)
+        card.append(row)
+        return card
+
+    def _on_discord_toggled(self, switch, state: bool) -> None:
+        """Aplica discord_rpc_enabled na config do Sober na hora (com backup)."""
+        try:
+            config.write_config({"discord_rpc_enabled": bool(state)})
+        except (ValueError, OSError) as exc:
+            _toast(self, t("dlg.err_save"), str(exc), error=True)
+            switch.set_active(not state)  # reverte em caso de erro
+            return
+        _toast(self, t("discord.applied"), t("sys.restart_roblox"))
 
     # ------------------------------------------------------------ card Jogos (Sistema)
     def _build_games_card(self) -> Gtk.Widget:
@@ -484,7 +528,7 @@ class SoberixWindow(Gtk.ApplicationWindow):
         if getattr(self, "_lang_switching", False):
             return  # sinal ecoado pela própria reconstrução
         idx = dd.get_selected()
-        value = {0: "auto", 1: "pt", 2: "en"}.get(idx, "auto")
+        value = ("auto", *i18n.SUPPORTED)[min(idx, len(i18n.SUPPORTED))]
         current = settings.load().get("language", "auto")
         if value == current:
             return  # nada mudou (ex.: rebuild inicial do widget)

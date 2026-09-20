@@ -45,7 +45,10 @@ mods, and backups — behind a friendly interface.
   (zip-slip protected), lists and removes them.
 - 💾 **Backups** — automatic snapshots of `config.json` before every write, with restore.
 - 🩺 **Doctor** — checks CPU (SSE4.1/4.2), Flatpak, Sober and Vulkan.
-- 🌎 **English & Portuguese** — auto-detected from your system locale, switchable in settings.
+- 🌎 **7 languages** — English, Português, Español, Français, Deutsch, Русский, 日本語:
+  auto-detected from your system locale, switchable instantly in settings.
+- 💬 **Discord Rich Presence** — one switch to show what you're playing on Discord
+  (native Sober feature, managed with a backup-safe toggle).
 - 🖥️ **GTK4 GUI** *and* a full **CLI** — simple for beginners, scriptable for power users.
 
 ## 📥 Install

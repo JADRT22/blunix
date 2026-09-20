@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "soberix"
-version = "1.2"
+version = "1.3"
 description = "Gerenciador estilo Bloxstrap para o Sober (Roblox no Linux)"
 readme = "README.pt-BR.md"
 requires-python = ">=3.11"

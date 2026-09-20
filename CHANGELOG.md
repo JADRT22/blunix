@@ -3,6 +3,19 @@
 All notable changes to Soberix are documented here, newest first.
 Format inspired by [Bloxstrap's release notes](https://github.com/bloxstraplabs/bloxstrap/releases).
 
+## v1.3
+
+The languages release.
+
+Additions
+
+- **Five new languages**: Español, Français, Deutsch, Русский and 日本語 —
+  every string of the app translated (a test enforces full parity),
+  auto-detected from the system locale and switchable instantly in settings
+- **Discord Rich Presence card** in System settings: one switch to show that
+  you're playing Roblox (with the current game's name) on Discord — a native
+  Sober feature (`discord_rpc_enabled`), applied immediately with backup
+
 ## v1.2
 
 The rename release. Formerly known as **Blunix** — the name changed to **Soberix**
