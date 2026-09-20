@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Soberix — Roblox launcher manager for Linux</title>
+<meta name="description" content="An open-source Roblox launcher manager for Linux — what Bloxstrap does for Windows, built on Sober. Quality profiles, FastFlags, mods, Discord Rich Presence.">
+<link rel="icon" href="favicon.png">
+<style>
+  :root {
+    --bg: #101013; --bg2: #16161a; --card: #1c1c22; --line: #26262b;
+    --text: #e8e8ea; --dim: #8f8f98; --blue: #0A84FF; --cyan: #00E5FF; --darkblue: #0A3D7A;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; line-height: 1.6; }
+  a { color: var(--blue); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+
+  /* hero */
+  .hero { text-align: center; padding: 80px 0 48px; }
+  .hero img { width: 128px; height: 128px; border-radius: 28px; }
+  .hero h1 { font-size: 3rem; margin: 18px 0 6px; }
+  .hero p.sub { color: var(--dim); font-size: 1.2rem; max-width: 640px; margin: 0 auto; }
+  .grad { background: linear-gradient(90deg, var(--blue), var(--cyan)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .badges { margin-top: 18px; }
+  .badges img { margin: 0 3px; }
+
+  /* buttons */
+  .cta { margin-top: 28px; display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+  .btn { display: inline-block; padding: 14px 30px; border-radius: 12px; font-weight: 600; font-size: 1.05rem; transition: transform .12s, filter .12s; }
+  .btn:hover { text-decoration: none; transform: translateY(-2px); filter: brightness(1.15); }
+  .btn-primary { background: linear-gradient(90deg, var(--blue), #0C6FD6); color: #fff; }
+  .btn-ghost { background: var(--card); color: var(--text); border: 1px solid var(--line); }
+
+  /* sections */
+  section { padding: 42px 0; }
+  h2 { font-size: 1.7rem; margin-bottom: 22px; text-align: center; }
+  .shot { background: var(--bg2); border: 1px solid var(--line); border-radius: 16px; padding: 16px; }
+  .shot img { width: 100%; border-radius: 10px; display: block; }
+  .shots { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .shots .tall img { max-width: 340px; margin: 0 auto; }
+  .caption { color: var(--dim); font-size: .9rem; text-align: center; margin-top: 8px; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+  .feat { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; }
+  .feat b { display: block; margin-bottom: 4px; }
+  .feat span { color: var(--dim); font-size: .95rem; }
+
+  /* steps */
+  .steps { max-width: 640px; margin: 0 auto; }
+  .step { display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start; }
+  .step .n { background: var(--darkblue); color: #fff; min-width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+  .step code { background: var(--card); border: 1px solid var(--line); padding: 2px 8px; border-radius: 6px; font-size: .9em; }
+
+  /* faq */
+  .faq { max-width: 720px; margin: 0 auto; }
+  .faq details { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 18px; margin-bottom: 10px; }
+  .faq summary { cursor: pointer; font-weight: 600; }
+  .faq p { color: var(--dim); margin-top: 8px; }
+
+  footer { text-align: center; color: var(--dim); padding: 40px 0 60px; font-size: .9rem; }
+  footer .links { margin-bottom: 10px; }
+  @media (max-width: 640px) { .shots { grid-template-columns: 1fr; } .hero h1 { font-size: 2.2rem; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <img src="icon.png" alt="Soberix icon">
+    <h1>Sober<span class="grad">ix</span></h1>
+    <p class="sub">An open-source Roblox launcher manager for Linux — what
+      <a href="https://github.com/bloxstraplabs/bloxstrap">Bloxstrap</a> does for Windows,
+      built on top of <a href="https://sober.vinegarhq.org/">Sober</a>.</p>
+    <div class="badges">
+      <img alt="release" src="https://img.shields.io/github/v/release/JADRT22/soberix?style=flat-square">
+      <img alt="tests" src="https://img.shields.io/github/actions/workflow/status/JADRT22/soberix/tests.yml?branch=main&style=flat-square&label=tests">
+      <img alt="license" src="https://img.shields.io/github/license/JADRT22/soberix?style=flat-square">
+    </div>
+    <div class="cta">
+      <a class="btn btn-primary" href="https://github.com/JADRT22/soberix/releases/latest">⬇ Download for Linux</a>
+      <a class="btn btn-ghost" href="https://github.com/JADRT22/soberix">View on GitHub</a>
+    </div>
+  </div>
+
+  <section id="screenshots">
+    <h2>See it in action</h2>
+    <div class="shots">
+      <figure class="shot">
+        <img src="screenshots/menu.png" alt="Soberix home menu with PLAY button and recent games">
+        <figcaption class="caption">One-click play — recent games show up as chips</figcaption>
+      </figure>
+      <figure class="shot tall">
+        <img src="screenshots/discord.png" alt="Discord Rich Presence showing the current Roblox game">
+        <figcaption class="caption">Discord Rich Presence — shows what you're playing</figcaption>
+      </figure>
+    </div>
+    <figure class="shot">
+      <img src="screenshots/settings.png" alt="Soberix settings: quality profile, system check, language and Discord">
+      <figcaption class="caption">Settings — quality profiles, system check, 7 languages, Discord, game history</figcaption>
+    </figure>
+  </section>
+
+  <section id="features">
+    <h2>Features</h2>
+    <div class="grid">
+      <div class="feat"><b>🎮 One-click play</b><span>A big PLAY button that applies your quality profile and launches Roblox. No lock-in.</span></div>
+      <div class="feat"><b>📊 Quality profiles</b><span>Light, Medium and Full presets — each explains what it changes before applying.</span></div>
+      <div class="feat"><b>⚡ FastFlags editor</b><span>Allowlist-safe with human-readable descriptions. Advanced mode included.</span></div>
+      <div class="feat"><b>💬 Discord Rich Presence</b><span>Show what you're playing on Discord, with the current game's name.</span></div>
+      <div class="feat"><b>🧩 Mod manager</b><span>Install .zip mods into Sober's asset_overlay, protected against zip-slip.</span></div>
+      <div class="feat"><b>⭐ Recent & favorites</b><span>Replay any game with one click from the home menu.</span></div>
+      <div class="feat"><b>🌎 7 languages</b><span>English, Português, Español, Français, Deutsch, Русский, 日本語 — switch instantly.</span></div>
+      <div class="feat"><b>💾 Backups</b><span>Automatic config snapshots before every write, with one-click restore.</span></div>
+      <div class="feat"><b>🔄 Auto-updates</b><span>Notifies you when a new version is out, straight from GitHub Releases.</span></div>
+    </div>
+  </section>
+
+  <section id="install">
+    <h2>Install</h2>
+    <div class="steps">
+      <div class="step"><div class="n">1</div><div>Install Sober (the Roblox runtime for Linux):<br><code>flatpak install flathub org.vinegarhq.Sober</code></div></div>
+      <div class="step"><div class="n">2</div><div>Download the AppImage from <a href="https://github.com/JADRT22/soberix/releases/latest">Releases</a> and mark it executable:<br><code>chmod +x Soberix-*.AppImage</code></div></div>
+      <div class="step"><div class="n">3</div><div>Run it (double-click works too) and hit <b>PLAY</b>.</div></div>
+    </div>
+  </section>
+
+  <section id="faq">
+    <h2>FAQ</h2>
+    <div class="faq">
+      <details><summary>Is it a Bloxstrap clone?</summary><p>It fills the same role on Linux, but it's an independent project: pure Python/GTK, managing Sober instead of the Windows client. No code shared with Bloxstrap.</p></details>
+      <details><summary>Does Roblox ban you for using it?</summary><p>Soberix only manages configuration — it doesn't modify the game, cheat, or touch Roblox's servers. It's in the same category as Bloxstrap and Sober themselves, which have operated openly for years.</p></details>
+      <details><summary>Why does the Discord status need the Discord app?</summary><p>Rich Presence works through a local socket only the Discord desktop app provides — the browser version can't receive it. This is true for Bloxstrap on Windows too.</p></details>
+      <details><summary>My clicks are offset in the Discord app</summary><p>That's a known Electron bug on fractional display scaling via XWayland. Launch Discord with <code>--ozone-platform-hint=auto</code> to run it native on Wayland.</p></details>
+    </div>
+  </section>
+
+  <footer>
+    <div class="links">
+      <a href="https://github.com/JADRT22/soberix">GitHub</a> ·
+      <a href="https://github.com/JADRT22/soberix/releases">Releases</a> ·
+      <a href="https://sober.vinegarhq.org/">Sober</a> ·
+      <a href="https://github.com/bloxstraplabs/bloxstrap">Bloxstrap</a>
+    </div>
+    <i>Not affiliated with Roblox Corporation or VinegarHQ. Soberix is open source under the MIT license.</i>
+  </footer>
+
+</div>
+</body>
+</html>
