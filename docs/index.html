@@ -3,149 +3,231 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Soberix — Roblox launcher manager for Linux</title>
-<meta name="description" content="An open-source Roblox launcher manager for Linux — what Bloxstrap does for Windows, built on Sober. Quality profiles, FastFlags, mods, Discord Rich Presence.">
+<title>Soberix — Get more out of Roblox on Linux</title>
+<meta name="description" content="Soberix is an alternative launcher for Roblox on Linux, providing additional useful features and functions. Open source, built on Sober.">
+<meta property="og:title" content="Soberix — Get more out of Roblox on Linux">
+<meta property="og:description" content="An open-source Roblox launcher manager built on Sober. Quality profiles, FastFlags, mods, Discord Rich Presence.">
+<meta property="og:image" content="screenshots/menu.png">
 <link rel="icon" href="favicon.png">
 <style>
   :root {
-    --bg: #101013; --bg2: #16161a; --card: #1c1c22; --line: #26262b;
-    --text: #e8e8ea; --dim: #8f8f98; --blue: #0A84FF; --cyan: #00E5FF; --darkblue: #0A3D7A;
+    --bg: #0d0d10; --panel: #151519; --card: #1a1a20; --line: #26262c;
+    --text: #eceded; --dim: #9a9aa3; --blue: #0A84FF; --cyan: #00E5FF; --darkblue: #0A3D7A;
+    --radius: 14px;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; line-height: 1.6; }
-  a { color: var(--blue); text-decoration: none; }
-  a:hover { text-decoration: underline; }
-  .wrap { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+  html { scroll-behavior: smooth; }
+  body {
+    background:
+      radial-gradient(1200px 500px at 50% -100px, rgba(10,132,255,.14), transparent 70%),
+      var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; text-decoration: none; }
+  .wrap { max-width: 1020px; margin: 0 auto; padding: 0 28px; }
 
-  /* hero */
-  .hero { text-align: center; padding: 80px 0 48px; }
-  .hero img { width: 128px; height: 128px; border-radius: 28px; }
-  .hero h1 { font-size: 3rem; margin: 18px 0 6px; }
-  .hero p.sub { color: var(--dim); font-size: 1.2rem; max-width: 640px; margin: 0 auto; }
-  .grad { background: linear-gradient(90deg, var(--blue), var(--cyan)); -webkit-background-clip: text; background-clip: text; color: transparent; }
-  .badges { margin-top: 18px; }
-  .badges img { margin: 0 3px; }
+  /* ---------- nav ---------- */
+  nav {
+    position: sticky; top: 0; z-index: 10;
+    background: rgba(13,13,16,.82); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav-in { display: flex; align-items: center; gap: 10px; height: 60px; }
+  .nav-in img { width: 26px; height: 26px; border-radius: 7px; }
+  .nav-in .brand { font-weight: 700; letter-spacing: .2px; }
+  .nav-links { margin-left: auto; display: flex; gap: 22px; font-size: .93rem; color: var(--dim); }
+  .nav-links a:hover { color: var(--text); }
+  .nav-cta { background: var(--blue); color: #fff !important; padding: 7px 16px; border-radius: 9px; font-weight: 600; }
+  .nav-cta:hover { filter: brightness(1.12); }
 
-  /* buttons */
-  .cta { margin-top: 28px; display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
-  .btn { display: inline-block; padding: 14px 30px; border-radius: 12px; font-weight: 600; font-size: 1.05rem; transition: transform .12s, filter .12s; }
-  .btn:hover { text-decoration: none; transform: translateY(-2px); filter: brightness(1.15); }
-  .btn-primary { background: linear-gradient(90deg, var(--blue), #0C6FD6); color: #fff; }
-  .btn-ghost { background: var(--card); color: var(--text); border: 1px solid var(--line); }
+  /* ---------- hero ---------- */
+  .hero { text-align: center; padding: 92px 0 56px; }
+  .hero .logo { width: 116px; height: 116px; border-radius: 26px; box-shadow: 0 20px 60px rgba(10,132,255,.25); }
+  .hero h1 { font-size: clamp(2.1rem, 5vw, 3.3rem); letter-spacing: -.5px; margin: 26px 0 10px; }
+  .hero p.tag { color: var(--dim); font-size: 1.18rem; max-width: 620px; margin: 0 auto; }
+  .grad { background: linear-gradient(92deg, var(--blue), var(--cyan)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .hero .cta { margin-top: 32px; display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 15px 34px; border-radius: 12px; font-weight: 600; font-size: 1.04rem;
+    transition: transform .15s ease, filter .15s ease, box-shadow .15s ease;
+  }
+  .btn:hover { text-decoration: none; transform: translateY(-2px); }
+  .btn-primary {
+    background: linear-gradient(180deg, #1287ff, #0a6fd8); color: #fff;
+    box-shadow: 0 8px 24px rgba(10,132,255,.35);
+  }
+  .btn-primary:hover { filter: brightness(1.08); box-shadow: 0 10px 28px rgba(10,132,255,.45); }
+  .btn-ghost { background: var(--card); border: 1px solid var(--line); }
+  .btn-ghost:hover { border-color: #3a3a44; }
+  .hero .note { color: var(--dim); font-size: .88rem; margin-top: 16px; }
+  .hero .note code { background: var(--card); border: 1px solid var(--line); padding: 1px 7px; border-radius: 6px; font-size: .95em; }
 
-  /* sections */
-  section { padding: 42px 0; }
-  h2 { font-size: 1.7rem; margin-bottom: 22px; text-align: center; }
-  .shot { background: var(--bg2); border: 1px solid var(--line); border-radius: 16px; padding: 16px; }
-  .shot img { width: 100%; border-radius: 10px; display: block; }
-  .shots { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
-  .shots .tall img { max-width: 340px; margin: 0 auto; }
-  .caption { color: var(--dim); font-size: .9rem; text-align: center; margin-top: 8px; }
+  /* ---------- section frame ---------- */
+  section { padding: 64px 0; }
+  section + section { border-top: 1px solid var(--line); }
+  h2 { font-size: 1.9rem; letter-spacing: -.3px; margin-bottom: 10px; text-align: center; }
+  .section-sub { text-align: center; color: var(--dim); max-width: 560px; margin: 0 auto 36px; }
 
-  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
-  .feat { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; }
-  .feat b { display: block; margin-bottom: 4px; }
-  .feat span { color: var(--dim); font-size: .95rem; }
+  /* ---------- feature blocks (Bloxstrap style) ---------- */
+  .feats { display: grid; gap: 56px; }
+  .feat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
+  .feat-row.flip .feat-text { order: 2; }
+  .feat-row h3 { font-size: 1.45rem; margin-bottom: 8px; }
+  .feat-row p { color: var(--dim); }
+  .feat-shot { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 14px; box-shadow: 0 24px 60px rgba(0,0,0,.45); }
+  .feat-shot img { width: 100%; display: block; border-radius: 9px; }
 
-  /* steps */
-  .steps { max-width: 640px; margin: 0 auto; }
-  .step { display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start; }
-  .step .n { background: var(--darkblue); color: #fff; min-width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; }
-  .step code { background: var(--card); border: 1px solid var(--line); padding: 2px 8px; border-radius: 6px; font-size: .9em; }
+  /* ---------- all features grid ---------- */
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; }
+  .chip { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 13px 16px; font-size: .95rem; }
+  .chip b { color: var(--text); }
+  .chip span { color: var(--dim); }
 
-  /* faq */
-  .faq { max-width: 720px; margin: 0 auto; }
-  .faq details { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 18px; margin-bottom: 10px; }
-  .faq summary { cursor: pointer; font-weight: 600; }
-  .faq p { color: var(--dim); margin-top: 8px; }
+  /* ---------- install ---------- */
+  .install-box { max-width: 680px; margin: 0 auto; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 30px 34px; }
+  .install-box ol { list-style: none; counter-reset: s; }
+  .install-box li { counter-increment: s; display: flex; gap: 16px; padding: 13px 0; align-items: flex-start; }
+  .install-box li + li { border-top: 1px solid var(--line); }
+  .install-box li::before {
+    content: counter(s); flex: 0 0 28px; height: 28px; border-radius: 50%;
+    background: var(--darkblue); color: #fff; font-weight: 700; font-size: .9rem;
+    display: inline-flex; align-items: center; justify-content: center; margin-top: 2px;
+  }
+  .install-box code { background: #0f0f13; border: 1px solid var(--line); border-radius: 7px; padding: 3px 9px; font-size: .88em; font-family: ui-monospace, 'Cascadia Code', Consolas, monospace; display: inline-block; margin-top: 4px; }
+  .install-box .req { color: var(--dim); font-size: .88rem; margin-top: 14px; }
 
-  footer { text-align: center; color: var(--dim); padding: 40px 0 60px; font-size: .9rem; }
-  footer .links { margin-bottom: 10px; }
-  @media (max-width: 640px) { .shots { grid-template-columns: 1fr; } .hero h1 { font-size: 2.2rem; } }
+  /* ---------- faq ---------- */
+  .faq { max-width: 760px; margin: 0 auto; }
+  .faq details { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 15px 20px; margin-bottom: 10px; }
+  .faq summary { cursor: pointer; font-weight: 600; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+  .faq summary::after { content: '+'; color: var(--dim); font-size: 1.3rem; line-height: 1; }
+  .faq details[open] summary::after { content: '–'; }
+  .faq p { color: var(--dim); margin-top: 10px; }
+  .faq code { background: #0f0f13; border: 1px solid var(--line); border-radius: 6px; padding: 1px 7px; font-size: .9em; }
+
+  /* ---------- footer ---------- */
+  footer { border-top: 1px solid var(--line); padding: 44px 0 64px; text-align: center; color: var(--dim); font-size: .92rem; }
+  footer .links { display: flex; gap: 26px; justify-content: center; margin-bottom: 16px; }
+  footer .links a:hover { color: var(--text); }
+  footer i { font-size: .85rem; opacity: .8; }
+
+  @media (max-width: 780px) {
+    .feat-row { grid-template-columns: 1fr; gap: 22px; }
+    .feat-row.flip .feat-text { order: 0; }
+    .nav-links a:not(.nav-cta) { display: none; }
+    .hero { padding: 64px 0 40px; }
+  }
 </style>
 </head>
 <body>
-<div class="wrap">
 
-  <div class="hero">
-    <img src="icon.png" alt="Soberix icon">
-    <h1>Sober<span class="grad">ix</span></h1>
-    <p class="sub">An open-source Roblox launcher manager for Linux — what
-      <a href="https://github.com/bloxstraplabs/bloxstrap">Bloxstrap</a> does for Windows,
-      built on top of <a href="https://sober.vinegarhq.org/">Sober</a>.</p>
-    <div class="badges">
-      <img alt="release" src="https://img.shields.io/github/v/release/JADRT22/soberix?style=flat-square">
-      <img alt="tests" src="https://img.shields.io/github/actions/workflow/status/JADRT22/soberix/tests.yml?branch=main&style=flat-square&label=tests">
-      <img alt="license" src="https://img.shields.io/github/license/JADRT22/soberix?style=flat-square">
-    </div>
-    <div class="cta">
-      <a class="btn btn-primary" href="https://github.com/JADRT22/soberix/releases/latest">⬇ Download for Linux</a>
-      <a class="btn btn-ghost" href="https://github.com/JADRT22/soberix">View on GitHub</a>
+<nav>
+  <div class="wrap nav-in">
+    <img src="icon.png" alt=""> <span class="brand">Soberix</span>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#install">Install</a>
+      <a href="#faq">FAQ</a>
+      <a href="https://github.com/JADRT22/soberix">GitHub</a>
+      <a class="nav-cta" href="https://github.com/JADRT22/soberix/releases/latest">Download</a>
     </div>
   </div>
+</nav>
 
-  <section id="screenshots">
-    <h2>See it in action</h2>
-    <div class="shots">
-      <figure class="shot">
-        <img src="screenshots/menu.png" alt="Soberix home menu with PLAY button and recent games">
-        <figcaption class="caption">One-click play — recent games show up as chips</figcaption>
-      </figure>
-      <figure class="shot tall">
-        <img src="screenshots/discord.png" alt="Discord Rich Presence showing the current Roblox game">
-        <figcaption class="caption">Discord Rich Presence — shows what you're playing</figcaption>
-      </figure>
+<header class="wrap hero">
+  <img class="logo" src="icon.png" alt="Soberix icon">
+  <h1>Get more out of <span class="grad">Roblox on Linux</span></h1>
+  <p class="tag">Soberix is an alternative launcher for Roblox that provides additional useful features and functions — built on <a href="https://sober.vinegarhq.org/" style="text-decoration:underline">Sober</a>.</p>
+  <div class="cta">
+    <a class="btn btn-primary" href="https://github.com/JADRT22/soberix/releases/latest">⬇&nbsp; Download for Linux</a>
+    <a class="btn btn-ghost" href="https://github.com/JADRT22/soberix">★ Star on GitHub</a>
+  </div>
+  <p class="note">Free &amp; open source (MIT) · single-file AppImage · requires <code>flatpak install flathub org.vinegarhq.Sober</code></p>
+</header>
+
+<section id="highlights" class="wrap">
+  <div class="feats">
+    <div class="feat-row">
+      <div class="feat-text">
+        <h3>One-click play, your way</h3>
+        <p>Hit the big <b>PLAY</b> button and Soberix applies your quality profile — Light, Medium or Full — before Roblox even opens. Nothing is locked away: Sober keeps working standalone, and flags you set manually are always preserved.</p>
+      </div>
+      <div class="feat-shot"><img src="screenshots/menu.png" alt="Soberix home menu"></div>
     </div>
-    <figure class="shot">
-      <img src="screenshots/settings.png" alt="Soberix settings: quality profile, system check, language and Discord">
-      <figcaption class="caption">Settings — quality profiles, system check, 7 languages, Discord, game history</figcaption>
-    </figure>
-  </section>
 
-  <section id="features">
-    <h2>Features</h2>
-    <div class="grid">
-      <div class="feat"><b>🎮 One-click play</b><span>A big PLAY button that applies your quality profile and launches Roblox. No lock-in.</span></div>
-      <div class="feat"><b>📊 Quality profiles</b><span>Light, Medium and Full presets — each explains what it changes before applying.</span></div>
-      <div class="feat"><b>⚡ FastFlags editor</b><span>Allowlist-safe with human-readable descriptions. Advanced mode included.</span></div>
-      <div class="feat"><b>💬 Discord Rich Presence</b><span>Show what you're playing on Discord, with the current game's name.</span></div>
-      <div class="feat"><b>🧩 Mod manager</b><span>Install .zip mods into Sober's asset_overlay, protected against zip-slip.</span></div>
-      <div class="feat"><b>⭐ Recent & favorites</b><span>Replay any game with one click from the home menu.</span></div>
-      <div class="feat"><b>🌎 7 languages</b><span>English, Português, Español, Français, Deutsch, Русский, 日本語 — switch instantly.</span></div>
-      <div class="feat"><b>💾 Backups</b><span>Automatic config snapshots before every write, with one-click restore.</span></div>
-      <div class="feat"><b>🔄 Auto-updates</b><span>Notifies you when a new version is out, straight from GitHub Releases.</span></div>
+    <div class="feat-row flip">
+      <div class="feat-text">
+        <h3>Bridging Roblox and Discord</h3>
+        <p>Share what you're doing among friends with ease. Flip one switch and your Discord profile shows the Roblox game you're playing — artwork and all — powered by Sober's native Rich Presence.</p>
+      </div>
+      <div class="feat-shot"><img src="screenshots/discord.png" alt="Discord Rich Presence showing the current Roblox game"></div>
     </div>
-  </section>
 
-  <section id="install">
-    <h2>Install</h2>
-    <div class="steps">
-      <div class="step"><div class="n">1</div><div>Install Sober (the Roblox runtime for Linux):<br><code>flatpak install flathub org.vinegarhq.Sober</code></div></div>
-      <div class="step"><div class="n">2</div><div>Download the AppImage from <a href="https://github.com/JADRT22/soberix/releases/latest">Releases</a> and mark it executable:<br><code>chmod +x Soberix-*.AppImage</code></div></div>
-      <div class="step"><div class="n">3</div><div>Run it (double-click works too) and hit <b>PLAY</b>.</div></div>
+    <div class="feat-row">
+      <div class="feat-text">
+        <h3>Everything in one place</h3>
+        <p>Quality profiles, an allowlist-safe FastFlags editor, mod management, config backups, a system doctor and seven languages — no JSON editing, no terminal required. Power users get a full CLI too.</p>
+      </div>
+      <div class="feat-shot"><img src="screenshots/settings.png" alt="Soberix settings window"></div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <section id="faq">
-    <h2>FAQ</h2>
-    <div class="faq">
-      <details><summary>Is it a Bloxstrap clone?</summary><p>It fills the same role on Linux, but it's an independent project: pure Python/GTK, managing Sober instead of the Windows client. No code shared with Bloxstrap.</p></details>
-      <details><summary>Does Roblox ban you for using it?</summary><p>Soberix only manages configuration — it doesn't modify the game, cheat, or touch Roblox's servers. It's in the same category as Bloxstrap and Sober themselves, which have operated openly for years.</p></details>
-      <details><summary>Why does the Discord status need the Discord app?</summary><p>Rich Presence works through a local socket only the Discord desktop app provides — the browser version can't receive it. This is true for Bloxstrap on Windows too.</p></details>
-      <details><summary>My clicks are offset in the Discord app</summary><p>That's a known Electron bug on fractional display scaling via XWayland. Launch Discord with <code>--ozone-platform-hint=auto</code> to run it native on Wayland.</p></details>
-    </div>
-  </section>
+<section id="features" class="wrap">
+  <h2>All features</h2>
+  <p class="section-sub">Everything Soberix manages for you.</p>
+  <div class="grid">
+    <div class="chip">📊 <b>Quality profiles</b> — <span>Light / Medium / Full presets</span></div>
+    <div class="chip">⚡ <b>FastFlags editor</b> — <span>allowlist-safe, explained in plain words</span></div>
+    <div class="chip">💬 <b>Discord Rich Presence</b> — <span>current game on your profile</span></div>
+    <div class="chip">🧩 <b>Mod manager</b> — <span>zip mods into Sober's asset_overlay</span></div>
+    <div class="chip">⭐ <b>Recent &amp; favorites</b> — <span>replay games with one click</span></div>
+    <div class="chip">🌎 <b>7 languages</b> — <span>EN · PT · ES · FR · DE · RU · JA</span></div>
+    <div class="chip">💾 <b>Backups</b> — <span>auto snapshots before every write</span></div>
+    <div class="chip">🩺 <b>Doctor</b> — <span>CPU, Flatpak, Sober &amp; Vulkan checks</span></div>
+    <div class="chip">🔄 <b>Update checker</b> — <span>notifies when a new release is out</span></div>
+    <div class="chip">⌨️ <b>Full CLI</b> — <span>scriptable for power users</span></div>
+  </div>
+</section>
 
-  <footer>
-    <div class="links">
-      <a href="https://github.com/JADRT22/soberix">GitHub</a> ·
-      <a href="https://github.com/JADRT22/soberix/releases">Releases</a> ·
-      <a href="https://sober.vinegarhq.org/">Sober</a> ·
-      <a href="https://github.com/bloxstraplabs/bloxstrap">Bloxstrap</a>
-    </div>
-    <i>Not affiliated with Roblox Corporation or VinegarHQ. Soberix is open source under the MIT license.</i>
-  </footer>
+<section id="install" class="wrap">
+  <h2>Install</h2>
+  <p class="section-sub">Three steps, five minutes.</p>
+  <div class="install-box">
+    <ol>
+      <li><div>Install Sober, the Roblox runtime for Linux:<br><code>flatpak install flathub org.vinegarhq.Sober</code></div></li>
+      <li><div>Download the AppImage from <a href="https://github.com/JADRT22/soberix/releases/latest" style="color:var(--blue)">Releases</a> and mark it executable:<br><code>chmod +x Soberix-*.AppImage</code></div></li>
+      <li><div>Run it — double-click works too — and hit <b>PLAY</b>.</div></li>
+    </ol>
+    <p class="req">Soberix requires a Linux desktop with GTK 4 (any modern distro) and the Sober Flatpak. AppImages are published automatically for every release.</p>
+  </div>
+</section>
 
-</div>
+<section id="faq" class="wrap">
+  <h2>Frequently asked questions</h2>
+  <div class="faq">
+    <details><summary>Is Soberix a Bloxstrap clone?</summary><p>It fills the same role on Linux, but it's an independent project: pure Python/GTK managing Sober (the native Linux Roblox runtime) instead of the Windows client. No code is shared with Bloxstrap.</p></details>
+    <details><summary>Can I get banned for using it?</summary><p>Soberix only manages configuration files — it doesn't modify the game, cheat, or touch Roblox's servers. It's in the same category as Bloxstrap and Sober themselves, which have operated openly for years.</p></details>
+    <details><summary>Why does the Discord status need the Discord app?</summary><p>Rich Presence works through a local socket that only the Discord desktop app provides — the browser version can't receive it. The same is true for Bloxstrap on Windows.</p></details>
+    <details><summary>Buttons in Discord don't line up with my cursor</summary><p>That's a known Electron bug with fractional display scaling over XWayland, not a Soberix issue. Launch Discord with <code>--ozone-platform-hint=auto</code> to run it native on Wayland and the clicks align.</p></details>
+    <details><summary>Does it work on my distro?</summary><p>Anywhere Sober runs: Ubuntu, Fedora, Arch, CachyOS, Mint, Pop!_OS… If it has Flatpak and GTK 4, you're good. ARM works too, though official Sober support for it is beta.</p></details>
+  </div>
+</section>
+
+<footer>
+  <div class="links">
+    <a href="https://github.com/JADRT22/soberix">GitHub</a>
+    <a href="https://github.com/JADRT22/soberix/releases">Releases</a>
+    <a href="https://github.com/JADRT22/soberix/blob/main/CONTRIBUTING.md">Contribute</a>
+    <a href="https://sober.vinegarhq.org/">Sober</a>
+    <a href="https://bloxstraplabs.com/">Bloxstrap</a>
+  </div>
+  <i>Not affiliated with Roblox Corporation or VinegarHQ.<br>Soberix is free software under the MIT license.</i>
+</footer>
+
 </body>
 </html>
