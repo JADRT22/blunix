@@ -252,6 +252,10 @@ def cmd_play(args: argparse.Namespace) -> int:
         if launcher.is_running() and not args.new and place is None:
             print("Roblox já está aberto — reinicie-o para valer o novo perfil!")
             return 0
+        if place:
+            from . import history
+            key = launcher.extract_place_id(place) or place
+            history.add_recent(str(key))
         result = launcher.launch(place, wait=args.wait)
     except launcher.LaunchError as exc:
         print(f"Erro: {exc}", file=sys.stderr)
@@ -280,6 +284,20 @@ def cmd_install_menu(_args: argparse.Namespace) -> int:
 def cmd_uninstall_menu(_args: argparse.Namespace) -> int:
     removed = desktop_integration.uninstall_menu()
     print("Atalho removido do menu." if removed else "Não havia atalho instalado.")
+    return 0
+
+
+# ---------------------------------------------------------------- games (histórico)
+def cmd_games(_args: argparse.Namespace) -> int:
+    from . import history
+    favs = history.favorites()
+    entries = history.recent()
+    if not entries:
+        print("(nenhum jogo no histórico — abra um com 'blunix play <id>')")
+        return 0
+    for e in entries:
+        star = "*" if e.id in favs else " "
+        print(f" {star} {e.id}  {e.name}")
     return 0
 
 
@@ -330,6 +348,9 @@ def build_parser() -> argparse.ArgumentParser:
 
     p = sub.add_parser("install-menu", help="cria atalho no menu de aplicativos (ícone)")
     p.set_defaults(func=cmd_install_menu)
+
+    p = sub.add_parser("games", help="lista jogos recentes (* = favorito)")
+    p.set_defaults(func=cmd_games)
 
     p = sub.add_parser("uninstall-menu", help="remove o atalho do menu")
     p.set_defaults(func=cmd_uninstall_menu)

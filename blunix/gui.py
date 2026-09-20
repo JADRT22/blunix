@@ -6,6 +6,7 @@ Importada apenas quando a GUI é solicitada, para o CLI funcionar sem GTK.
 from __future__ import annotations
 
 import json
+import threading
 from pathlib import Path
 
 import gi
@@ -13,7 +14,7 @@ import gi
 gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk, Gio, GLib, Gdk  # noqa: E402
 
-from . import backups, config, constants, desktop_integration, environment, fflags, launcher, mods, settings  # noqa: E402
+from . import backups, config, constants, desktop_integration, environment, fflags, history, launcher, mods, settings, updates  # noqa: E402
 from .i18n import t  # noqa: E402
 
 
@@ -212,6 +213,7 @@ class BlunixWindow(Gtk.ApplicationWindow):
 .blunix-menu .conf-btn { background-color: #26262B; color: #DDDDDD; }
 .blunix-menu .conf-btn:hover { background-color: #323238; }
 .blunix-menu .dim { color: #8f8f98; font-size: 11px; }
+.game-chip { padding: 2px 10px; border-radius: 9999px; }
 """
         provider = Gtk.CssProvider()
         provider.load_from_data(css)
@@ -262,6 +264,11 @@ class BlunixWindow(Gtk.ApplicationWindow):
         self.btn_big_play.set_size_request(232, -1)  # largura igual p/ alinhar
         col.append(self.btn_big_play)
 
+        # chips de jogos (favoritos + recentes) — 1 clique para jogar de novo
+        self.games_row = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
+        self._refresh_games_row()
+        col.append(self.games_row)
+
         btn_conf = Gtk.Button()
         btn_conf.add_css_class("conf-btn")
         conf_content = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=1,
@@ -277,15 +284,31 @@ class BlunixWindow(Gtk.ApplicationWindow):
         btn_conf.set_size_request(232, -1)  # largura igual p/ alinhar
         col.append(btn_conf)
 
-        # status compacto (uma linha)
+        # status compacto (uma linha) + banner de atualização
         self.home_status = Gtk.Label()
         self.home_status.set_justify(Gtk.Justification.CENTER)
         self.home_status.set_wrap(True)
         self.home_status.add_css_class("dim")
         root.append(self.home_status)
 
+        # banner de atualização (aparece só quando há versão nova)
+        self.upd_banner = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10,
+                                  margin_top=6, margin_bottom=10,
+                                  margin_start=12, margin_end=12,
+                                  halign=Gtk.Align.CENTER)
+        self.upd_label = Gtk.Label()
+        self.upd_label.add_css_class("dim")
+        btn_upd = Gtk.Button(label=t("upd.download"))
+        btn_upd.add_css_class("suggested-action")
+        btn_upd.connect("clicked", self._on_open_release)
+        self.upd_banner.append(self.upd_label)
+        self.upd_banner.append(btn_upd)
+        self.upd_banner.set_visible(False)
+        root.append(self.upd_banner)
+
         self._refresh_checks()
         self._update_home_status()
+        self._check_updates_async()
         return root
 
     def _build_system_tab(self) -> Gtk.Widget:
@@ -369,8 +392,35 @@ class BlunixWindow(Gtk.ApplicationWindow):
         lang_hint.set_halign(Gtk.Align.START)
         outer.append(lang_hint)
 
+        # ---- jogos (favoritos/recentes)
+        outer.append(self._build_games_card())
+
         self._refresh_checks()
         return outer
+
+    # ------------------------------------------------------------ card Jogos (Sistema)
+    def _build_games_card(self) -> Gtk.Widget:
+        card = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8,
+                       margin_top=10, margin_bottom=10, margin_start=10, margin_end=10)
+        card.add_css_class("card")
+        title = Gtk.Label()
+        title.set_markup(f"<b>{t('games.favorites')} / {t('games.recent')}</b>")
+        title.set_halign(Gtk.Align.START)
+        card.append(title)
+
+        self.games_list = Gtk.ListBox()
+        self.games_list.set_selection_mode(Gtk.SelectionMode.NONE)
+        self.games_list.add_css_class("boxed-list")
+        self._refresh_games_card()
+        card.append(self.games_list)
+
+        row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+        btn_clear = Gtk.Button(label=t("games.clear"))
+        btn_clear.connect("clicked", self._on_clear_history)
+        row.append(btn_clear)
+        row.set_halign(Gtk.Align.START)
+        card.append(row)
+        return card
 
     def _on_profile_desc(self, *args) -> None:
         key = self._selected_profile()
@@ -408,6 +458,131 @@ class BlunixWindow(Gtk.ApplicationWindow):
         value = {0: "auto", 1: "pt", 2: "en"}.get(idx, "auto")
         settings.save({"language": value})
 
+    # ------------------------------------------------------------ jogos (recentes/favoritos)
+    def _refresh_games_row(self) -> None:
+        """Chips de jogos: favoritos primeiro, depois recentes (máx. 4)."""
+        if not hasattr(self, "games_row"):
+            return
+        child = self.games_row.get_first_child()
+        while child:
+            nxt = child.get_next_sibling()
+            self.games_row.remove(child)
+            child = nxt
+
+        favs = history.favorites()
+        entries = history.recent()
+        shown: list[history.GameEntry] = []
+        for pid in favs:  # favoritos primeiro
+            for e in entries:
+                if e.id == pid and all(s.id != pid for s in shown):
+                    shown.append(e)
+        for e in entries:  # depois os demais recentes
+            if all(s.id != e.id for s in shown):
+                shown.append(e)
+        shown = shown[:4]
+
+        if not shown:
+            lbl = Gtk.Label(label=t("games.empty"))
+            lbl.add_css_class("dim")
+            lbl.set_halign(Gtk.Align.CENTER)
+            self.games_row.append(lbl)
+            return
+
+        row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6, halign=Gtk.Align.CENTER)
+        for e in shown:
+            star = "★ " if e.id in favs else ""
+            chip = Gtk.Button(label=f"{star}{e.name}")
+            chip.add_css_class("game-chip")
+            chip.set_tooltip_text(t("games.play_again"))
+            chip.connect("clicked", self._on_chip_play, e.id)
+            row.append(chip)
+        self.games_row.append(row)
+
+    def _on_chip_play(self, _btn: Gtk.Button, place_id: str) -> None:
+        self._play(place_id)
+
+    def _refresh_games_card(self) -> None:
+        """Card de gerenciamento na aba Sistema (não bloqueia se ausente)."""
+        if not hasattr(self, "games_list"):
+            return
+        child = self.games_list.get_first_child()
+        while child:
+            nxt = child.get_next_sibling()
+            self.games_list.remove(child)
+            child = nxt
+        favs = history.favorites()
+        entries = history.recent()
+        if not entries:
+            empty = Gtk.Label(label=t("games.empty"))
+            empty.set_halign(Gtk.Align.START)
+            empty.set_margin_start(8)
+            empty.set_margin_top(6)
+            empty.set_margin_bottom(6)
+            self.games_list.append(empty)
+            return
+        for e in entries:
+            row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8,
+                          margin_top=4, margin_bottom=4, margin_start=8, margin_end=8)
+            star_lbl = Gtk.Label(label="★" if e.id in favs else "☆")
+            name_lbl = Gtk.Label(label=e.name)
+            name_lbl.set_halign(Gtk.Align.START)
+            name_lbl.set_hexpand(True)
+            btn_fav = Gtk.Button(label="★" if e.id not in favs else "☆")
+            btn_fav.set_tooltip_text(t("games.star") if e.id not in favs else t("games.unstar"))
+            btn_fav.connect("clicked", self._on_toggle_fav, e.id, e.name)
+            btn_rm = Gtk.Button(label="✕")
+            btn_rm.set_tooltip_text(t("games.remove"))
+            btn_rm.connect("clicked", self._on_remove_game, e.id)
+            row.append(star_lbl)
+            row.append(name_lbl)
+            row.append(btn_fav)
+            row.append(btn_rm)
+            self.games_list.append(row)
+
+    def _on_toggle_fav(self, _btn: Gtk.Button, place_id: str, name: str) -> None:
+        history.toggle_favorite(place_id, name)
+        self._refresh_games_card()
+        self._refresh_games_row()
+
+    def _on_remove_game(self, _btn: Gtk.Button, place_id: str) -> None:
+        history.remove(place_id)
+        self._refresh_games_card()
+        self._refresh_games_row()
+
+    def _on_clear_history(self, _btn: Gtk.Button) -> None:
+        if not _confirm(self, t("games.q_clear"), t("games.q_clear_detail")):
+            return
+        history.clear()
+        self._refresh_games_card()
+        self._refresh_games_row()
+
+    # ------------------------------------------------------------ atualização
+    def _check_updates_async(self) -> None:
+        """Consulta a API do GitHub fora da main thread; bate no banner via idle_add."""
+        def worker():
+            info = updates.check()
+            GLib.idle_add(self._show_update_banner, info)
+        thread = threading.Thread(target=worker, daemon=True)
+        thread.start()
+
+    def _show_update_banner(self, info) -> None:
+        if not hasattr(self, "upd_banner"):
+            return False
+        if not info.found:
+            self.upd_banner.set_visible(False)
+            return False
+        self.upd_label.set_text(t("upd.available", latest=info.latest))
+        self.upd_banner.set_visible(True)
+        self.upd_banner._blunix_url = info.url
+        return False
+
+    def _on_open_release(self, _btn: Gtk.Button) -> None:
+        url = getattr(self.upd_banner, "_blunix_url", None) or updates.API_URL.replace("/releases/latest", "/releases/latest")
+        try:
+            Gtk.show_uri(None, url, Gdk.CURRENT_TIME)
+        except Exception:  # noqa: BLE001 — sem navegador: mostra o link
+            _toast(self, t("upd.download"), t("upd.err_open", url=url), error=True)
+
     def _play(self, place: str | None) -> None:
         checks = environment.run_checks()
         if not environment.all_ok(checks):
@@ -422,6 +597,10 @@ class BlunixWindow(Gtk.ApplicationWindow):
         except (fflags.FFFlagError, ValueError, OSError) as exc:
             _toast(self, t("dlg.err_profile"), str(exc), error=True)
             return
+        if place:
+            name = launcher.extract_place_id(place) or place
+            history.add_recent(str(name))
+            self._refresh_games_row()
         try:
             launcher.launch(place)
         except launcher.LaunchError as exc:

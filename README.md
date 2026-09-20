@@ -34,6 +34,9 @@ mods, and backups — behind a friendly interface.
 - 🎮 **One-click play** — a compact menu with a big **PLAY** button; your quality profile is
   applied automatically every time you launch. No lock-in: launching Sober directly still
   works, and manually-set flags are always preserved.
+- ⭐ **Recent & favorite games** — chips on the home screen to replay a game with one click.
+- 🔄 **Update checker** — pings GitHub Releases and offers the download when a new version
+  is out.
 - 📊 **Quality profiles** — *Light* (small change), *Medium* (balanced) and *Full* (max FPS)
   presets, each explaining exactly what it changes before applying.
 - ⚡ **FastFlags editor** — allowlist-safe, with human-readable descriptions of what each
@@ -99,6 +102,7 @@ blunix config show|set|reset      # official Sober config options
 blunix fflags list|get|set|unset  # allowlist-safe FastFlags
 blunix fflags preset light|medium|full|default
 blunix mods list|install|remove|clear   # asset_overlay mods (.zip)
+blunix games                     # recent games (* = favorite)
 blunix backup create|list|restore # config.json snapshots
 blunix launch [--place ID]        # plain Sober launch
 ```

@@ -42,6 +42,10 @@ cliente Windows.
 - **Gerenciador de mods** via `asset_overlay`: instala mods `.zip` mantendo a
   estrutura de pastas exigida (espelha `content/…` do base.apk), lista e
   remove mods instalados.
+- **Jogos recentes e favoritos**: chips na tela inicial para rejogar com 1 clique
+  (`blunix games` no CLI).
+- **Checagem de atualização**: consulta as Releases do GitHub e oferece o download
+  quando há versão nova.
 - **Backups**: snapshot completo da config (`config.json` + fflags) com
   restore e histórico automático antes de qualquer escrita.
 - **CLI completa** e **GUI GTK4** com abas (Geral, FastFlags, Mods, Backups).
