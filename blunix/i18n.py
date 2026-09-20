@@ -90,7 +90,7 @@ STRINGS: dict[str, dict[str, str]] = {
         # idioma
         "lang.label": "Idioma / Language",
         "lang.auto": "Automático",
-        "lang.restart": "Reinicie o Blunix para trocar o idioma.",
+        "lang.restart": "Aplicado na hora — sem reiniciar.",
         "lang.saved": "Idioma salvo",
         # diálogos comuns
         "dlg.ok": "OK",
@@ -214,7 +214,7 @@ STRINGS: dict[str, dict[str, str]] = {
         "bk.restored": "Backup restored",
         "lang.label": "Idioma / Language",
         "lang.auto": "Automatic",
-        "lang.restart": "Restart Blunix to switch the language.",
+        "lang.restart": "Applied instantly — no restart needed.",
         "lang.saved": "Language saved",
         "dlg.ok": "OK",
         "dlg.yes": "Yes",
@@ -283,6 +283,20 @@ def lang() -> str:
     if _LANG is None:
         _LANG = _detect_lang()
     return _LANG
+
+
+def set_lang(value: str) -> None:
+    """Define o idioma em tempo de execução ('auto' | 'pt' | 'en').
+
+    Usado pela GUI para trocar o idioma sem reiniciar o app.
+    """
+    global _LANG
+    if value == "auto":
+        env = (os.environ.get("LC_ALL") or os.environ.get("LC_MESSAGES")
+               or os.environ.get("LANG") or "en")
+        _LANG = "pt" if env.lower().startswith("pt") else "en"
+    else:
+        _LANG = value if value in ("pt", "en") else "en"
 
 
 def t(key: str, **fmt) -> str:

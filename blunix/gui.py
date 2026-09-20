@@ -15,7 +15,8 @@ gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk, Gio, GLib, Gdk  # noqa: E402
 
 from . import backups, config, constants, desktop_integration, environment, fflags, history, launcher, mods, settings, updates  # noqa: E402
-from .i18n import t  # noqa: E402
+from .i18n import t, set_lang  # noqa: E402
+from . import i18n  # noqa: E402
 
 
 def _message_dialog(
@@ -122,6 +123,7 @@ class BlunixWindow(Gtk.ApplicationWindow):
         self.set_icon_name(desktop_integration.DESKTOP_ID)  # ícone no taskbar
         self.connect("notify::maximized", self._block_maximize)
 
+        self._lang_switching = False
         self.set_child(self._build_menu_page())
         self._build_settings_window()
         self.connect("close-request", self._on_main_close)
@@ -452,11 +454,36 @@ class BlunixWindow(Gtk.ApplicationWindow):
         idx = self.profile_dd.get_selected()
         return self.PROFILE_LABELS[min(idx, len(self.PROFILE_LABELS) - 1)][1]
 
-    def _on_lang_changed(self, *_a) -> None:
-        """Salva a escolha de idioma; vale na próxima vez que o app abrir."""
-        idx = self.lang_dd.get_selected()
+    def _on_lang_changed(self, dd, _pspec) -> None:
+        """Aplica o idioma na hora: salva e reconstrói menu + configuração."""
+        if getattr(self, "_lang_switching", False):
+            return  # sinal ecoado pela própria reconstrução
+        idx = dd.get_selected()
         value = {0: "auto", 1: "pt", 2: "en"}.get(idx, "auto")
+        current = settings.load().get("language", "auto")
+        if value == current:
+            return  # nada mudou (ex.: rebuild inicial do widget)
         settings.save({"language": value})
+        i18n.set_lang(value)
+        self._rebuild_ui()
+
+    def _rebuild_ui(self) -> None:
+        """Reconstrói menu e janela de configuração com os textos novos."""
+        self._lang_switching = True
+        try:
+            # janela de configuração: destrói e recria (escondida, se estava aberta)
+            was_visible = bool(self.settings_win.get_visible())
+            old = self.settings_win
+            self.settings_win = None
+            old.destroy()
+            self._build_settings_window()
+            if was_visible:
+                self.settings_win.present()
+
+            # menu: troca o conteúdo e o status
+            self.set_child(self._build_menu_page())
+        finally:
+            self._lang_switching = False
 
     # ------------------------------------------------------------ jogos (recentes/favoritos)
     def _refresh_games_row(self) -> None:
