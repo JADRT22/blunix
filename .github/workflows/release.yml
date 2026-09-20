@@ -2,6 +2,10 @@ name: Release
 
 # Publica uma release com o AppImage anexado quando uma tag v* é enviada.
 # (Mesmo modelo do Bloxstrap: release gerada por CI, nunca manual.)
+#
+# O corpo da release vem de duas fontes:
+#   1. CHANGELOG.md — seção "## v<versão>" da tag publicada (estilo Bloxstrap)
+#   2. fallback: instruções de instalação em inglês
 on:
   push:
     tags:
@@ -28,6 +32,13 @@ jobs:
       - name: Rodar testes
         run: python3 -m pytest -q
 
+      - name: Extrair changelog da versão
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          python3 tools/extract_changelog.py "$VERSION" > release_notes.md \
+            || printf '**Blunix %s**\n\n**Easy way:** download the `Blunix-*.AppImage` asset below, mark it\nas executable (`chmod +x`) and run it (double-click works too).\nRequires Sober: `flatpak install flathub org.vinegarhq.Sober`\n' "$VERSION" > release_notes.md
+          cat release_notes.md
+
       - name: Construir AppImage
         run: ./tools/build-appimage.sh
 
@@ -36,9 +47,6 @@ jobs:
         with:
           files: Blunix-*.AppImage
           generate_release_notes: true
-          body: |
-            **Easy way:** download the `Blunix-*.AppImage` asset below, mark it
-            as executable (`chmod +x`) and run it (double-click works too).
-            Requires Sober: `flatpak install flathub org.vinegarhq.Sober`
+          body_path: release_notes.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
