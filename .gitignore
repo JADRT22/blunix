@@ -1,0 +1,14 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+
+# Artefatos de release (gerados por tools/build-appimage.sh)
+*.AppImage
+
+# Sistema
+.DS_Store

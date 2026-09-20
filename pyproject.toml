@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "blunix"
+version = "0.2.0"
+description = "Gerenciador estilo Bloxstrap para o Sober (Roblox no Linux)"
+readme = "README.pt-BR.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Fernando" }]
+keywords = ["roblox", "sober", "linux", "launcher", "bloxstrap"]
+classifiers = [
+  "Environment :: X11 Applications :: GTK",
+  "Intended Audience :: End Users/Desktop",
+  "Operating System :: POSIX :: Linux",
+  "Programming Language :: Python :: 3.11",
+  "Topic :: Games/Entertainment",
+]
+# Sem dependências obrigatórias: CLI usa stdlib. GUI usa PyGObject (opcional).
+dependencies = []
+
+[project.optional-dependencies]
+gui = ["PyGObject>=3.46"]
+dev = ["pytest>=8"]
+
+[project.scripts]
+blunix = "blunix.cli:main"
+
+[project.urls]
+Sober = "https://sober.vinegarhq.org/"
+"Documentação da config do Sober" = "https://vinegarhq.org/Sober/Configuration/index.html"
+
+[tool.setuptools]
+packages = ["blunix"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

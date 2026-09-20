@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Blunix
+GenericName=Roblox Launcher Manager
+Comment=Gerenciador do Sober: configs, FastFlags, mods e backups
+Exec=blunix gui
+Icon=com.github.fernando.blunix
+Categories=Game;
+Keywords=roblox;sober;launcher;fflags;
+Terminal=false
