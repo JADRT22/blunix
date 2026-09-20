@@ -16,7 +16,8 @@ REPO = "JADRT22/blunix"
 API_URL = f"https://api.github.com/repos/{REPO}/releases/latest"
 TIMEOUT = 5  # segundos — UI não pode travar
 
-_V_RE = re.compile(r"(\d+)\.(\d+)\.(\d+)")
+# aceita 2 ou 3 componentes (1.0, 1.2.3…)
+_V_RE = re.compile(r"(\d+)\.(\d+)(?:\.(\d+))?")
 
 
 @dataclass(frozen=True)
@@ -29,7 +30,9 @@ class UpdateInfo:
 
 def _parse(v: str) -> tuple[int, int, int] | None:
     m = _V_RE.search(v or "")
-    return (int(m[1]), int(m[2]), int(m[3])) if m else None
+    if not m:
+        return None
+    return (int(m[1]), int(m[2]), int(m[3] or 0))
 
 
 def is_newer(latest: str, current: str) -> bool:

@@ -6,7 +6,7 @@ from pathlib import Path
 
 APP_NAME = "Blunix"
 APP_ID = "com.github.fernando.blunix"
-VERSION = "0.2.1"
+VERSION = "1.0"
 
 FLATPAK_APP_ID = "org.vinegarhq.Sober"
 FLATPAK_REF = f"app/{FLATPAK_APP_ID}/x86_64/stable"

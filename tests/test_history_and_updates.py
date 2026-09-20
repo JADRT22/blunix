@@ -102,11 +102,11 @@ def test_check_newer(monkeypatch):
             return False
 
         def read(self):
-            return b'{"tag_name": "v0.3.0", "html_url": "https://example.com/rel"}'
+            return b'{"tag_name": "v9.9", "html_url": "https://example.com/rel"}'
 
     monkeypatch.setattr(updates.urllib.request, "urlopen", lambda *a, **k: R())
     info = updates.check()
-    assert info.found and info.latest == "0.3.0" and info.url == "https://example.com/rel"
+    assert info.found and info.latest == "9.9" and info.url == "https://example.com/rel"
 
 
 def test_check_same_version(monkeypatch):
@@ -118,7 +118,7 @@ def test_check_same_version(monkeypatch):
             return False
 
         def read(self):
-            return b'{"tag_name": "v0.2.1"}'
+            return b'{"tag_name": "v1.0"}'
 
     monkeypatch.setattr(updates.urllib.request, "urlopen", lambda *a, **k: R())
     info = updates.check()

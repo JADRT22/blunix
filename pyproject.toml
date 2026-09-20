@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "blunix"
-version = "0.2.1"
+version = "1.0"
 description = "Gerenciador estilo Bloxstrap para o Sober (Roblox no Linux)"
 readme = "README.pt-BR.md"
 requires-python = ">=3.11"
