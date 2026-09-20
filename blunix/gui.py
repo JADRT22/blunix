@@ -74,6 +74,26 @@ def _toast(parent: Gtk.Window, title: str, detail: str = "", error: bool = False
     dlg.present()
 
 
+def _ui_scale() -> float:
+    """Fator de escala da UI com base na resolução do monitor.
+
+    - Base: 1920px físicos = 1.0×. 1440p ≈ 1.33×, 4K ≈ 2.0×.
+    - Geometria do monitor é em pixels LÓGICOS (já dividida pelo scale/
+      zoom do desktop), então multiplicamos de volta pelo scale factor —
+      assim zoom 150%/200% em telas HiDPI não deixa o menu pequeno.
+    - Limitado a [1.0, 2.0]: nunca menor que o layout original.
+    """
+    try:
+        display = Gdk.Display.get_default()
+        mon = display.get_monitor(0)
+        geom = mon.get_geometry()
+        scale = max(mon.get_scale_factor(), 1)
+        physical_w = max(geom.width, 1) * scale
+        return max(1.0, min(physical_w / 1920.0, 2.0))
+    except Exception:  # noqa: BLE001 — qualquer erro: escala 1.0
+        return 1.0
+
+
 def _confirm(parent: Gtk.Window, title: str, detail: str) -> bool:
     result: list[bool] = []
 
@@ -97,7 +117,8 @@ class BlunixWindow(Gtk.ApplicationWindow):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.set_title(constants.APP_NAME)
-        self.set_default_size(400, 210)
+        self._s = _ui_scale()  # fator de escala (resolução/zoom do monitor)
+        self.set_default_size(round(400 * self._s), round(210 * self._s))
         self._setup_css()
 
         header = Gtk.HeaderBar()
@@ -135,7 +156,7 @@ class BlunixWindow(Gtk.ApplicationWindow):
         """Configuração abre em uma janela separada (o menu permanece pequeno)."""
         self.settings_win = Gtk.ApplicationWindow(application=self.get_application())
         self.settings_win.set_title(t("win.settings"))
-        self.settings_win.set_default_size(860, 620)
+        self.settings_win.set_default_size(round(860 * self._s), round(620 * self._s))
         self.settings_win.set_icon_name(desktop_integration.DESKTOP_ID)
         # sem maximizar/tela cheia: só minimizar e fechar (redimensionar livre)
         hdr = Gtk.HeaderBar()
@@ -206,17 +227,21 @@ class BlunixWindow(Gtk.ApplicationWindow):
 
     @staticmethod
     def _setup_css() -> None:
-        """Fundo preto fosco + botões do menu (azul-escuro e cinza)."""
-        css = b"""
-.blunix-menu { background-color: #101013; }
-.blunix-menu .play-btn { background-color: #0A3D7A; color: #ffffff; }
-.blunix-menu .play-btn:hover { background-color: #0C4A94; }
-.blunix-menu .play-btn:active { background-color: #08335F; }
-.blunix-menu .conf-btn { background-color: #26262B; color: #DDDDDD; }
-.blunix-menu .conf-btn:hover { background-color: #323238; }
-.blunix-menu .dim { color: #8f8f98; font-size: 11px; }
-.game-chip { padding: 2px 10px; border-radius: 9999px; }
-"""
+        """Fundo preto fosco + botões do menu (azul-escuro e cinza).
+
+        Fonte do texto dim escala com a resolução (o GTK interpola px)."""
+        s = _ui_scale()
+        dim_px = round(11 * s)
+        css = f"""
+.blunix-menu {{ background-color: #101013; }}
+.blunix-menu .play-btn {{ background-color: #0A3D7A; color: #ffffff; }}
+.blunix-menu .play-btn:hover {{ background-color: #0C4A94; }}
+.blunix-menu .play-btn:active {{ background-color: #08335F; }}
+.blunix-menu .conf-btn {{ background-color: #26262B; color: #DDDDDD; }}
+.blunix-menu .conf-btn:hover {{ background-color: #323238; }}
+.blunix-menu .dim {{ color: #8f8f98; font-size: {dim_px}px; }}
+.game-chip {{ padding: 2px 10px; border-radius: 9999px; }}
+""".encode()
         provider = Gtk.CssProvider()
         provider.load_from_data(css)
         Gtk.StyleContext.add_provider_for_display(
@@ -241,7 +266,7 @@ class BlunixWindow(Gtk.ApplicationWindow):
         icon_path = desktop_integration.find_icon()
         if icon_path is not None:
             img = Gtk.Image.new_from_file(str(icon_path))
-            img.set_pixel_size(76)
+            img.set_pixel_size(round(76 * self._s))
             img.set_valign(Gtk.Align.CENTER)
             img.set_halign(Gtk.Align.CENTER)
             outer.append(img)
@@ -263,7 +288,7 @@ class BlunixWindow(Gtk.ApplicationWindow):
         play_content.append(p2)
         self.btn_big_play.set_child(play_content)
         self.btn_big_play.connect("clicked", self._on_big_play)
-        self.btn_big_play.set_size_request(232, -1)  # largura igual p/ alinhar
+        self.btn_big_play.set_size_request(round(232 * self._s), -1)  # largura igual p/ alinhar
         col.append(self.btn_big_play)
 
         # chips de jogos (favoritos + recentes) — 1 clique para jogar de novo
@@ -283,7 +308,7 @@ class BlunixWindow(Gtk.ApplicationWindow):
         conf_content.append(c2)
         btn_conf.set_child(conf_content)
         btn_conf.connect("clicked", lambda _b: self._open_settings())
-        btn_conf.set_size_request(232, -1)  # largura igual p/ alinhar
+        btn_conf.set_size_request(round(232 * self._s), -1)  # largura igual p/ alinhar
         col.append(btn_conf)
 
         # status compacto (uma linha) + banner de atualização
