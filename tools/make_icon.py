@@ -1,8 +1,8 @@
-"""Gera o ícone do Blunix.
+"""Gera o ícone do Soberix.
 
 Estratégia: usar o ícone oficial do Sober como BASE (duas barras arredondadas
 em diagonal, composição que preenche o tile inteiro) e recolorir o gradiente
-verde para o azul elétrico → ciano do Blunix. O resultado fica com a mesma
+verde para o azul elétrico → ciano do Soberix. O resultado fica com a mesma
 silhueta do Sober (fácil de reconhecer) e aparece maior na taskbar/dock.
 
 Requer GdkPixbuf (presente em qualquer sistema com GTK). Se o ícone do Sober
@@ -21,7 +21,7 @@ from pathlib import Path
 SIZE = 256
 SS = 2  # supersampling do fallback
 
-# Gradiente alvo do Blunix
+# Gradiente alvo do Soberix
 BLUE_A = (10, 132, 255)   # #0A84FF (substitui o verde claro)
 BLUE_B = (0, 229, 255)    # #00E5FF (substitui o verde escuro)
 
@@ -134,7 +134,7 @@ def _draw_block_fallback(dst: Path) -> None:
 
 
 def main() -> None:
-    out = Path(sys.argv[1]) if len(sys.argv) > 1 else Path("data/com.github.fernando.blunix.png")
+    out = Path(sys.argv[1]) if len(sys.argv) > 1 else Path("data/com.github.fernando.soberix.png")
     out.parent.mkdir(parents=True, exist_ok=True)
     sober = _find_sober_icon()
     if sober is not None:

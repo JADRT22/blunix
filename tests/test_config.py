@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from blunix import config
+from soberix import config
 
 
 @pytest.fixture
@@ -64,9 +64,9 @@ def test_write_config_rejects_invalid(cfg_file: Path):
     assert not cfg_file.exists()  # nada foi escrito
 
 
-def test_comment_header_written_by_blunix(cfg_file: Path):
+def test_comment_header_written_by_soberix(cfg_file: Path):
     cfg_file.write_text("{}", encoding="utf-8")
     config.write_config({"use_opengl": True}, cfg_file, create_backup=False)
     text = cfg_file.read_text(encoding="utf-8")
-    assert text.startswith("// Editado pelo Blunix")
+    assert text.startswith("// Editado pelo Soberix")
     assert config.parse_config_text(text)["use_opengl"] is True

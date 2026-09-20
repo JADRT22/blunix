@@ -17,9 +17,9 @@ APPS_DIR = Path.home() / ".local/share/applications"
 HICOLOR_BASE = Path.home() / ".local/share/icons/hicolor"
 ICONS_DIR = HICOLOR_BASE / "256x256/apps"
 ICON_SIZES = (48, 64, 128, 256)  # tamanhos padrão que o KDE/GNOME consultam
-DESKTOP_ID = "com.github.fernando.blunix"
+DESKTOP_ID = "com.github.fernando.soberix"
 
-# Cores do gradiente: Sober (verde) -> Blunix (azul)
+# Cores do gradiente: Sober (verde) -> Soberix (azul)
 _SVG_RECOLOR = (("#98E357", "#0A84FF"), ("#26A269", "#00E5FF"))
 
 
@@ -34,7 +34,7 @@ def find_sober_svg() -> Path | None:
 
 
 def recolor_sober_svg(dest: Path) -> Path | None:
-    """Copia o SVG do Sober trocando o gradiente verde pelo azul do Blunix."""
+    """Copia o SVG do Sober trocando o gradiente verde pelo azul do Soberix."""
     src = find_sober_svg()
     if src is None:
         return None
@@ -101,7 +101,7 @@ def find_icon() -> Path | None:
         Path(__file__).resolve().parent.parent / "data" / f"{DESKTOP_ID}.png",
         Path(__file__).resolve().parent / "share" / f"{DESKTOP_ID}.png",
     ]
-    # dentro de AppImage extraído: blunix/ fica em usr/lib/blunix/
+    # dentro de AppImage extraído: soberix/ fica em usr/lib/soberix/
     appimage = os.environ.get("APPDIR")
     if appimage:
         candidates.append(Path(appimage) / "usr/share/icons/hicolor/256x256/apps" / f"{DESKTOP_ID}.png")
@@ -112,16 +112,16 @@ def find_icon() -> Path | None:
 
 
 def _exec_line() -> str:
-    """Como o menu deve abrir o Blunix (AppImage > venv > python -m)."""
+    """Como o menu deve abrir o Soberix (AppImage > venv > python -m)."""
     appimage = os.environ.get("APPIMAGE")
     if appimage and Path(appimage).is_file():
         return appimage
     project_run = Path(__file__).resolve().parent.parent / ".venv" / "bin" / "python"
     if project_run.is_file():
-        return f"{project_run} -m blunix"
-    if shutil.which("blunix"):
-        return "blunix gui"
-    return f"{shutil.which('python3') or 'python3'} -m blunix"
+        return f"{project_run} -m soberix"
+    if shutil.which("soberix"):
+        return "soberix gui"
+    return f"{shutil.which('python3') or 'python3'} -m soberix"
 
 
 def install_menu() -> MenuInstallResult:
@@ -147,7 +147,7 @@ def install_menu() -> MenuInstallResult:
 
     desktop = f"""[Desktop Entry]
 Type=Application
-Name=Blunix
+Name=Soberix
 GenericName=Roblox for Linux
 Comment=Open Roblox (Sober) with one click — configs, flags and mods
 Exec={exec_line}
@@ -155,7 +155,7 @@ Icon={icon_field}
 Categories=Game;Utility;
 Keywords=roblox;sober;launcher;play;bloxstrap;
 Terminal=false
-StartupWMClass=Blunix
+StartupWMClass=Soberix
 """
     target = apps_dir / f"{DESKTOP_ID}.desktop"
     try:

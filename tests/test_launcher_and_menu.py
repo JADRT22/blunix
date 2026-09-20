@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from blunix import desktop_integration, launcher
+from soberix import desktop_integration, launcher
 
 
 # ---------------------------------------------------------------- extract_place_id

@@ -36,7 +36,7 @@ jobs:
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
           python3 tools/extract_changelog.py "$VERSION" > release_notes.md \
-            || printf '**Blunix %s**\n\n**Easy way:** download the `Blunix-*.AppImage` asset below, mark it\nas executable (`chmod +x`) and run it (double-click works too).\nRequires Sober: `flatpak install flathub org.vinegarhq.Sober`\n' "$VERSION" > release_notes.md
+            || printf '**Soberix %s**\n\n**Easy way:** download the `Soberix-*.AppImage` asset below, mark it\nas executable (`chmod +x`) and run it (double-click works too).\nRequires Sober: `flatpak install flathub org.vinegarhq.Sober`\n' "$VERSION" > release_notes.md
           cat release_notes.md
 
       - name: Construir AppImage
@@ -45,7 +45,7 @@ jobs:
       - name: Publicar na GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: Blunix-*.AppImage
+          files: Soberix-*.AppImage
           generate_release_notes: true
           body_path: release_notes.md
         env:

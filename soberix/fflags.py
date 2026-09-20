@@ -2,7 +2,7 @@
 
 Fonte da allowlist: https://vinegarhq.org/Sober/Configuration/TipsAndTricks.html
 Flags fora dessa lista são ignoradas pelo cliente Roblox e, por isso, o
-Blunix se recusa a escrevê-las (a menos que force=True).
+Soberix se recusa a escrevê-las (a menos que force=True).
 """
 from __future__ import annotations
 
@@ -122,7 +122,7 @@ def stage_preset(name: str) -> dict[str, Any]:
     """Calcula as flags resultantes de um preset SEM escrever no Sober.
 
     Usado pelo botão JOGAR: o perfil escolhido entra em vigor no momento em
-    que o usuário joga pelo Blunix — abrir o Sober direto não é afetado.
+    que o usuário joga pelo Soberix — abrir o Sober direto não é afetado.
     """
     if name not in constants.FFLAG_PRESETS:
         raise FFFlagError(

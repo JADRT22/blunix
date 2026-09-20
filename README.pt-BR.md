@@ -1,20 +1,20 @@
-# Blunix (Português)
+# Soberix (Português)
 
 > [!NOTE]
 > Este é o README secundário. O principal, em inglês, está aqui:
 > **[README.md](README.md)** 🇬🇧
 
-**Blunix** é um gerenciador estilo Bloxstrap para Linux, construído sobre o
+**Soberix** é um gerenciador estilo Bloxstrap para Linux, construído sobre o
 [Sober](https://sober.vinegarhq.org/) — o runtime da VinegarHQ que roda o
 cliente Android do Roblox nativamente no Linux, sem Wine.
 
-O Sober faz o trabalho pesado (rodar o Roblox). O Blunix apenas o *gerencia*:
+O Sober faz o trabalho pesado (rodar o Roblox). O Soberix apenas o *gerencia*:
 configurações, FastFlags, mods e backups — assim como o Bloxstrap faz para o
 cliente Windows.
 
 > **Aviso importante sobre FastFlags:** desde 30/09/2025 a Roblox usa uma
 > *allowlist* de FastFlags — flags fora da lista são **ignoradas** pelo cliente.
-> O Blunix trabalha apenas com flags da allowlist conhecida.
+> O Soberix trabalha apenas com flags da allowlist conhecida.
 > Referência: https://vinegarhq.org/Sober/Configuration/TipsAndTricks.html
 
 ## Por que não é um "Bloxstrap de verdade" para Linux?
@@ -43,7 +43,7 @@ cliente Windows.
   estrutura de pastas exigida (espelha `content/…` do base.apk), lista e
   remove mods instalados.
 - **Jogos recentes e favoritos**: chips na tela inicial para rejogar com 1 clique
-  (`blunix games` no CLI).
+  (`soberix games` no CLI).
 - **Checagem de atualização**: consulta as Releases do GitHub e oferece o download
   quando há versão nova.
 - **Backups**: snapshot completo da config (`config.json` + fflags) com
@@ -52,9 +52,9 @@ cliente Windows.
 
 ## Download (jeito fácil)
 
-Baixe o AppImage mais recente na página de **[Releases](https://github.com/JADRT22/blunix/releases/latest)**:
+Baixe o AppImage mais recente na página de **[Releases](https://github.com/JADRT22/soberix/releases/latest)**:
 
-1. Baixe **`Blunix-<versão>-x86_64.AppImage`**
+1. Baixe **`Soberix-<versão>-x86_64.AppImage`**
 2. Clique com botão direito → **Propriedades → Permitir executar** (só na 1ª vez)
 3. Dê duplo clique → janela abre com um botão grande **🎮 JOGAR**
 4. Opcional: cole o número ou link de um jogo e clique **Abrir jogo**
@@ -67,10 +67,10 @@ Baixe o AppImage mais recente na página de **[Releases](https://github.com/JADR
 ## Rodar do código (para quem gosta de mexer 🔧)
 
 ```bash
-git clone https://github.com/JADRT22/blunix.git
-cd blunix
-python3 -m blunix            # GUI
-python3 -m blunix doctor     # CLI (não precisa de GTK)
+git clone https://github.com/JADRT22/soberix.git
+cd soberix
+python3 -m soberix            # GUI
+python3 -m soberix doctor     # CLI (não precisa de GTK)
 ```
 
 Ou gere seu próprio AppImage: `./tools/build-appimage.sh`
@@ -78,7 +78,7 @@ Ou gere seu próprio AppImage: `./tools/build-appimage.sh`
 Para o ícone ficar no menu de aplicativos:
 
 ```bash
-./Blunix-*-x86_64.AppImage install-menu
+./Soberix-*-x86_64.AppImage install-menu
 ```
 
 A janela mostra **"Tudo pronto! ✅"** quando o ambiente está OK. Se faltar
@@ -92,10 +92,10 @@ ficam escondidos atrás de um botão.
 ### CLI amigável
 
 ```bash
-blunix play              # abre o Roblox
-blunix play 2753915549   # abre um jogo pelo número
-blunix play "https://www.roblox.com/games/2753915549/Brookhaven-RP"   # link do site
-blunix play --profile light|medium|full   # aliases em inglês (ou leve/medio/completo)
+soberix play              # abre o Roblox
+soberix play 2753915549   # abre um jogo pelo número
+soberix play "https://www.roblox.com/games/2753915549/Brookhaven-RP"   # link do site
+soberix play --profile light|medium|full   # aliases em inglês (ou leve/medio/completo)
 ```
 
 ## Requisitos
@@ -110,16 +110,16 @@ blunix play --profile light|medium|full   # aliases em inglês (ou leve/medio/co
 ## Instalação (a partir do código)
 
 ```bash
-cd ~/Projetos/blunix
-./tools/build-appimage.sh         # gera Blunix-<versão>-x86_64.AppImage
-./Blunix-*-x86_64.AppImage install-menu
+cd ~/Projetos/soberix
+./tools/build-appimage.sh         # gera Soberix-<versão>-x86_64.AppImage
+./Soberix-*-x86_64.AppImage install-menu
 ```
 
 Ou apenas use sem instalar:
 
 ```bash
-python3 -m blunix            # GUI
-python3 -m blunix --help     # CLI
+python3 -m soberix            # GUI
+python3 -m soberix --help     # CLI
 ```
 
 ## Uso (avançado)
@@ -127,43 +127,43 @@ python3 -m blunix --help     # CLI
 ### CLI
 
 ```bash
-blunix doctor                       # verifica o ambiente
-blunix play 2753915549              # modo simples: joga (nº, link ou nada)
-blunix install-menu                 # atalho no menu de aplicativos
-blunix config show                  # mostra a config atual do Sober
-blunix config set close_on_leave true
-blunix config set touch_mode fake-off
-blunix fflags list                  # flags da allowlist
-blunix fflags set FIntDebugForceMSAASamples 4
-blunix fflags preset performance    # aplica preset
-blunix mods list                    # mods instalados no asset_overlay
-blunix mods install meumod.zip      # instala um mod
-blunix mods remove ArrowCursor.png  # remove por caminho relativo
-blunix backup create                # cria backup
-blunix backup list                  # lista backups
-blunix backup restore <arquivo>     # restaura
-blunix launch                       # abre o Roblox (Sober)
-blunix launch --place 123456789     # abre uma experience
+soberix doctor                       # verifica o ambiente
+soberix play 2753915549              # modo simples: joga (nº, link ou nada)
+soberix install-menu                 # atalho no menu de aplicativos
+soberix config show                  # mostra a config atual do Sober
+soberix config set close_on_leave true
+soberix config set touch_mode fake-off
+soberix fflags list                  # flags da allowlist
+soberix fflags set FIntDebugForceMSAASamples 4
+soberix fflags preset performance    # aplica preset
+soberix mods list                    # mods instalados no asset_overlay
+soberix mods install meumod.zip      # instala um mod
+soberix mods remove ArrowCursor.png  # remove por caminho relativo
+soberix backup create                # cria backup
+soberix backup list                  # lista backups
+soberix backup restore <arquivo>     # restaura
+soberix launch                       # abre o Roblox (Sober)
+soberix launch --place 123456789     # abre uma experience
 ```
 
 ### GUI
 
 ```bash
-python3 -m blunix
+python3 -m soberix
 ```
 
 Abas: **Início** (botão JOGAR ROBLOX + status), **Config** (opções do Sober),
 **FastFlags** (allowlist + presets), **Mods** (asset_overlay),
 **Backups** (criar/restaurar).
 
-## Como o Blunix modifica o Sober
+## Como o Soberix modifica o Sober
 
 | Recurso        | Mecanismo                                                       |
 |----------------|-----------------------------------------------------------------|
 | Config/Fflags  | `~/.var/app/org.vinegarhq.Sober/config/sober/config.json`       |
 | Mods           | `~/.var/app/org.vinegarhq.Sober/data/sober/asset_overlay/`      |
-| Backups        | `~/.local/share/blunix/backups/`                              |
-| Logs           | `~/.local/state/blunix/blunix.log`                          |
+| Backups        | `~/.local/share/soberix/backups/`                              |
+| Logs           | `~/.local/state/soberix/soberix.log`                          |
 
 O Sober só lê a config no boot: após mudar algo, feche o Roblox e abra de novo
 (vale para FastFlags e mods).
@@ -177,7 +177,7 @@ O Sober só lê a config no boot: após mudar algo, feche o Roblox e abra de nov
 
 ## Avisos legais
 
-- Blunix **não é afiliado** à Roblox Corporation nem à VinegarHQ.
+- Soberix **não é afiliado** à Roblox Corporation nem à VinegarHQ.
 - Uso de clientes não oficiais pode, em tese, violar os ToS da Roblox. A
   VinegarHQ declara que o uso normal do Sober "muito raramente" gera moderação;
   use por sua conta e risco.
@@ -186,10 +186,10 @@ O Sober só lê a config no boot: após mudar algo, feche o Roblox e abra de nov
 
 ## Limitações conhecidas
 
-- **FastFlags**: somente a allowlist pós-30/09/2025 funciona. O Blunix valida
+- **FastFlags**: somente a allowlist pós-30/09/2025 funciona. O Soberix valida
   contra ela, mas a Roblox pode alterar a lista a qualquer momento.
 - **Studio**: o Sober não roda o Roblox Studio. Para Studio no Linux, use o
-  Vinegar (via Wine) — fora do escopo do Blunix.
+  Vinegar (via Wine) — fora do escopo do Soberix.
 - **Multi-instance**: não suportado (nem pelo Sober, nem aqui).
 
 ## Licença

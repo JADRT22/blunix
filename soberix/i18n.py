@@ -25,7 +25,7 @@ STRINGS: dict[str, dict[str, str]] = {
         "tab.fflags": "FastFlags",
         "tab.mods": "Mods",
         "tab.backups": "Backups",
-        "win.settings": "Blunix — Configuração",
+        "win.settings": "Soberix — Configuração",
         "win.minimize": "Minimizar",
         "win.close": "Fechar",
         # sistema
@@ -156,7 +156,7 @@ STRINGS: dict[str, dict[str, str]] = {
         "tab.fflags": "FastFlags",
         "tab.mods": "Mods",
         "tab.backups": "Backups",
-        "win.settings": "Blunix — Settings",
+        "win.settings": "Soberix — Settings",
         "win.minimize": "Minimize",
         "win.close": "Close",
         "sys.profile_title": "Quality profile (used by the PLAY button)",

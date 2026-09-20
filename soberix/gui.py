@@ -1,4 +1,4 @@
-"""GUI GTK4 do Blunix: menu compacto + janela de configuração (Sistema, Config,
+"""GUI GTK4 do Soberix: menu compacto + janela de configuração (Sistema, Config,
 FastFlags, Mods, Backups). Textos em PT/EN via i18n.
 
 Importada apenas quando a GUI é solicitada, para o CLI funcionar sem GTK.
@@ -113,7 +113,7 @@ def _confirm(parent: Gtk.Window, title: str, detail: str) -> bool:
     return result[0]
 
 
-class BlunixWindow(Gtk.ApplicationWindow):
+class SoberixWindow(Gtk.ApplicationWindow):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.set_title(constants.APP_NAME)
@@ -233,13 +233,13 @@ class BlunixWindow(Gtk.ApplicationWindow):
         s = _ui_scale()
         dim_px = round(11 * s)
         css = f"""
-.blunix-menu {{ background-color: #101013; }}
-.blunix-menu .play-btn {{ background-color: #0A3D7A; color: #ffffff; }}
-.blunix-menu .play-btn:hover {{ background-color: #0C4A94; }}
-.blunix-menu .play-btn:active {{ background-color: #08335F; }}
-.blunix-menu .conf-btn {{ background-color: #26262B; color: #DDDDDD; }}
-.blunix-menu .conf-btn:hover {{ background-color: #323238; }}
-.blunix-menu .dim {{ color: #8f8f98; font-size: {dim_px}px; }}
+.soberix-menu {{ background-color: #101013; }}
+.soberix-menu .play-btn {{ background-color: #0A3D7A; color: #ffffff; }}
+.soberix-menu .play-btn:hover {{ background-color: #0C4A94; }}
+.soberix-menu .play-btn:active {{ background-color: #08335F; }}
+.soberix-menu .conf-btn {{ background-color: #26262B; color: #DDDDDD; }}
+.soberix-menu .conf-btn:hover {{ background-color: #323238; }}
+.soberix-menu .dim {{ color: #8f8f98; font-size: {dim_px}px; }}
 .game-chip {{ padding: 2px 10px; border-radius: 9999px; }}
 """.encode()
         provider = Gtk.CssProvider()
@@ -255,7 +255,7 @@ class BlunixWindow(Gtk.ApplicationWindow):
         """Menu compacto: logo à esquerda; JOGAR (azul-escuro) em cima,
         Configuração (cinza) embaixo. Fundo preto fosco."""
         root = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        root.add_css_class("blunix-menu")
+        root.add_css_class("soberix-menu")
 
         outer = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=16,
                         margin_top=18, margin_bottom=18, margin_start=18, margin_end=18,
@@ -625,11 +625,11 @@ class BlunixWindow(Gtk.ApplicationWindow):
             return False
         self.upd_label.set_text(t("upd.available", latest=info.latest))
         self.upd_banner.set_visible(True)
-        self.upd_banner._blunix_url = info.url
+        self.upd_banner._soberix_url = info.url
         return False
 
     def _on_open_release(self, _btn: Gtk.Button) -> None:
-        url = getattr(self.upd_banner, "_blunix_url", None) or f"https://github.com/{updates.REPO}/releases/latest"
+        url = getattr(self.upd_banner, "_soberix_url", None) or f"https://github.com/{updates.REPO}/releases/latest"
         try:
             Gtk.show_uri(None, url, Gdk.CURRENT_TIME)
         except Exception:  # noqa: BLE001 — sem navegador: mostra o link
@@ -907,7 +907,7 @@ class BlunixWindow(Gtk.ApplicationWindow):
             row_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=1,
                               margin_top=6, margin_bottom=6, margin_start=8, margin_end=8)
             lrow = Gtk.ListBoxRow()
-            lrow._blunix_flag_name = name
+            lrow._soberix_flag_name = name
             lrow.set_child(row_box)
             title_lbl = Gtk.Label()
             title_lbl.set_markup(f"<b>{name}</b> = {value}")
@@ -947,7 +947,7 @@ class BlunixWindow(Gtk.ApplicationWindow):
         row = self.flags_list.get_selected_row()
         if row is None:
             return
-        name = getattr(row, "_blunix_flag_name", None)
+        name = getattr(row, "_soberix_flag_name", None)
         if not name:
             return
         fflags.remove_flag(name)
@@ -1000,7 +1000,7 @@ class BlunixWindow(Gtk.ApplicationWindow):
             row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
                           margin_top=4, margin_bottom=4, margin_start=8, margin_end=8)
             lrow = Gtk.ListBoxRow()
-            lrow._blunix_mod_path = m.rel_path
+            lrow._soberix_mod_path = m.rel_path
             lrow.set_child(row)
             lbl = Gtk.Label(label=f"{m.rel_path}  ({m.size} bytes)")
             lbl.set_halign(Gtk.Align.START)
@@ -1035,7 +1035,7 @@ class BlunixWindow(Gtk.ApplicationWindow):
         row = self.mods_list.get_selected_row()
         if row is None:
             return
-        rel = getattr(row, "_blunix_mod_path", None)
+        rel = getattr(row, "_soberix_mod_path", None)
         if not rel:
             return
         try:
@@ -1055,7 +1055,7 @@ class BlunixWindow(Gtk.ApplicationWindow):
         outer = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10,
                         margin_top=12, margin_bottom=12, margin_start=12, margin_end=12)
         hint = Gtk.Label()
-        hint.set_markup(f"<small>{t('bk.hint', path=constants.BLUNIX_BACKUP_DIR)}</small>")
+        hint.set_markup(f"<small>{t('bk.hint', path=constants.SOBERIX_BACKUP_DIR)}</small>")
         hint.set_halign(Gtk.Align.START)
         hint.set_wrap(True)
         outer.append(hint)
@@ -1094,7 +1094,7 @@ class BlunixWindow(Gtk.ApplicationWindow):
             row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
                           margin_top=4, margin_bottom=4, margin_start=8, margin_end=8)
             lrow = Gtk.ListBoxRow()
-            lrow._blunix_backup_stamp = info.stamp
+            lrow._soberix_backup_stamp = info.stamp
             lrow.set_child(row)
             size = info.path.stat().st_size
             lbl = Gtk.Label(label=f"{info.stamp}  ({size} bytes)")
@@ -1114,7 +1114,7 @@ class BlunixWindow(Gtk.ApplicationWindow):
         row = self.backups_list.get_selected_row()
         if row is None:
             return
-        stamp = getattr(row, "_blunix_backup_stamp", None)
+        stamp = getattr(row, "_soberix_backup_stamp", None)
         if not stamp:
             return
         if not _confirm(self, t("bk.q_restore"), t("bk.q_restore_detail", name=f"{stamp}.json")):
@@ -1126,7 +1126,7 @@ class BlunixWindow(Gtk.ApplicationWindow):
             _toast(self, t("dlg.err_restore"), str(exc), error=True)
 
 
-class BlunixApp(Gtk.Application):
+class SoberixApp(Gtk.Application):
     def __init__(self):
         super().__init__(application_id=constants.APP_ID)
 
@@ -1134,7 +1134,7 @@ class BlunixApp(Gtk.Application):
         # App único: clicar no ícone de novo traz a janela que já existe
         win = self.props.active_window
         if win is None:
-            win = BlunixWindow(application=self)
+            win = SoberixWindow(application=self)
         win.present()
         # garante ícone no tema do sistema (taskbar/dock) — idempotente
         try:
@@ -1145,7 +1145,7 @@ class BlunixApp(Gtk.Application):
 
 def run() -> int:
     # nomes de aplicativo corretos para o gerenciador de janelas (taskbar/dock)
-    GLib.set_prgname("Blunix")
+    GLib.set_prgname("Soberix")
     GLib.set_application_name(constants.APP_NAME)
-    app = BlunixApp()
+    app = SoberixApp()
     return app.run(None)

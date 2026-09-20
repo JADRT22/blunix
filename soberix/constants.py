@@ -1,12 +1,12 @@
-"""Constantes centrais do Blunix."""
+"""Constantes centrais do Soberix."""
 from __future__ import annotations
 
 import os
 from pathlib import Path
 
-APP_NAME = "Blunix"
-APP_ID = "com.github.fernando.blunix"
-VERSION = "1.1"
+APP_NAME = "Soberix"
+APP_ID = "com.github.fernando.soberix"
+VERSION = "1.2"
 
 FLATPAK_APP_ID = "org.vinegarhq.Sober"
 FLATPAK_REF = f"app/{FLATPAK_APP_ID}/x86_64/stable"
@@ -33,11 +33,11 @@ SOBER_CONFIG_FILE = SOBER_CONFIG_DIR / "config.json"
 SOBER_DATA_DIR = SOBER_VAR_BASE / "data" / "sober"
 SOBER_ASSET_OVERLAY = SOBER_DATA_DIR / "asset_overlay"
 
-# Dados do Blunix
-BLUNIX_DATA_DIR = _xdg("XDG_DATA_HOME", Path(".local/share")) / "blunix"
-BLUNIX_STATE_DIR = _xdg("XDG_STATE_HOME", Path(".local/state")) / "blunix"
-BLUNIX_BACKUP_DIR = BLUNIX_DATA_DIR / "backups"
-BLUNIX_LOG_FILE = BLUNIX_STATE_DIR / "blunix.log"
+# Dados do Soberix
+SOBERIX_DATA_DIR = _xdg("XDG_DATA_HOME", Path(".local/share")) / "soberix"
+SOBERIX_STATE_DIR = _xdg("XDG_STATE_HOME", Path(".local/state")) / "soberix"
+SOBERIX_BACKUP_DIR = SOBERIX_DATA_DIR / "backups"
+SOBERIX_LOG_FILE = SOBERIX_STATE_DIR / "soberix.log"
 
 # Presets de FastFlags (allowlist pós-2025-09-30; ver TipsAndTricks)
 # "leve/medio/completo" = o quanto muda no visual, do menor pro maior impacto.

@@ -1,4 +1,4 @@
-"""Verificação de ambiente (doctor) para rodar Sober + Blunix.
+"""Verificação de ambiente (doctor) para rodar Sober + Soberix.
 
 Requisitos do Sober (https://vinegarhq.org/Sober/FAQ/index.html):
 - CPU x86_64 com SSE4.1 e SSE4.2

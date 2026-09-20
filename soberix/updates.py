@@ -12,7 +12,7 @@ from dataclasses import dataclass
 
 from . import constants
 
-REPO = "JADRT22/blunix"
+REPO = "JADRT22/soberix"
 API_URL = f"https://api.github.com/repos/{REPO}/releases/latest"
 TIMEOUT = 5  # segundos — UI não pode travar
 

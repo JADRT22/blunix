@@ -1,4 +1,4 @@
-"""CLI do Blunix (argparse, zero dependências externas)."""
+"""CLI do Soberix (argparse, zero dependências externas)."""
 from __future__ import annotations
 
 import argparse
@@ -9,7 +9,7 @@ from pathlib import Path
 
 from . import config, constants, environment, fflags, launcher, mods, backups, desktop_integration, settings
 
-log = logging.getLogger("blunix")
+log = logging.getLogger("soberix")
 
 STATUS_ICON = {
     environment.Status.OK: "✔",
@@ -21,8 +21,8 @@ STATUS_ICON = {
 def _setup_logging(verbose: bool, log_to_file: bool = False) -> None:
     handlers: list[logging.Handler] = [logging.StreamHandler()]
     if log_to_file:
-        constants.BLUNIX_STATE_DIR.mkdir(parents=True, exist_ok=True)
-        handlers.append(logging.FileHandler(constants.BLUNIX_LOG_FILE, encoding="utf-8"))
+        constants.SOBERIX_STATE_DIR.mkdir(parents=True, exist_ok=True)
+        handlers.append(logging.FileHandler(constants.SOBERIX_LOG_FILE, encoding="utf-8"))
     level = logging.DEBUG if verbose else logging.WARNING
     logging.basicConfig(level=level, handlers=handlers, format="%(levelname)s %(name)s: %(message)s")
 
@@ -223,7 +223,7 @@ def cmd_backup_restore(args: argparse.Namespace) -> int:
 def cmd_play(args: argparse.Namespace) -> int:
     """Modo simples: aplica o perfil de flags escolhido e joga.
 
-    É aqui que o Blunix agrega valor: o perfil entra em vigor no momento em
+    É aqui que o Soberix agrega valor: o perfil entra em vigor no momento em
     que você joga. Abrir o Sober direto continua funcionando normalmente.
     """
     # aliases em inglês (docs/repo são English-first)
@@ -260,7 +260,7 @@ def cmd_play(args: argparse.Namespace) -> int:
         result = launcher.launch(place, wait=args.wait)
     except launcher.LaunchError as exc:
         print(f"Erro: {exc}", file=sys.stderr)
-        print("Dica: use o número do jogo, ex.: blunix play 2753915549", file=sys.stderr)
+        print("Dica: use o número do jogo, ex.: soberix play 2753915549", file=sys.stderr)
         return 1
     if isinstance(result, int):
         return 0 if result == 0 else 1
@@ -294,7 +294,7 @@ def cmd_games(_args: argparse.Namespace) -> int:
     favs = history.favorites()
     entries = history.recent()
     if not entries:
-        print("(nenhum jogo no histórico — abra um com 'blunix play <id>')")
+        print("(nenhum jogo no histórico — abra um com 'soberix play <id>')")
         return 0
     for e in entries:
         star = "*" if e.id in favs else " "
@@ -321,12 +321,12 @@ def cmd_launch(args: argparse.Namespace) -> int:
 # ---------------------------------------------------------------- parser
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="blunix",
+        prog="soberix",
         description=f"{constants.APP_NAME} — gerenciador do Sober (Roblox no Linux)",
     )
     parser.add_argument("-V", "--version", action="version", version=f"%(prog)s {constants.VERSION}")
     parser.add_argument("-v", "--verbose", action="store_true", help="logging detalhado")
-    parser.add_argument("--logfile", action="store_true", help="grava log em ~/.local/state/blunix/")
+    parser.add_argument("--logfile", action="store_true", help="grava log em ~/.local/state/soberix/")
     sub = parser.add_subparsers(dest="command", required=True)
 
     p = sub.add_parser("gui", help="abre a interface gráfica (GTK4)")

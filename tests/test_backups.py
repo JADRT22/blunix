@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from blunix import backups, config, constants
+from soberix import backups, config, constants
 
 
 @pytest.fixture(autouse=True)
@@ -12,7 +12,7 @@ def paths():
     cfg = constants.SOBER_CONFIG_FILE
     cfg.parent.mkdir(parents=True, exist_ok=True)
     cfg.write_text("{}", encoding="utf-8")
-    return {"cfg": cfg, "backups": constants.BLUNIX_BACKUP_DIR}
+    return {"cfg": cfg, "backups": constants.SOBERIX_BACKUP_DIR}
 
 
 def test_create_and_list(paths):

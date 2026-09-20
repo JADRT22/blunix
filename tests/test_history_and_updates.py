@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import urllib.error
 
-from blunix import history, updates
+from soberix import history, updates
 
 
 # ---------------------------------------------------------------- history

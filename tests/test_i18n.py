@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import pytest
 
-from blunix import i18n, settings
+from soberix import i18n, settings
 
 
 @pytest.fixture(autouse=True)

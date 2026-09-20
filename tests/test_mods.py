@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from blunix import constants, mods
+from soberix import constants, mods
 
 
 @pytest.fixture(autouse=True)

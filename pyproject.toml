@@ -3,8 +3,8 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "blunix"
-version = "1.1"
+name = "soberix"
+version = "1.2"
 description = "Gerenciador estilo Bloxstrap para o Sober (Roblox no Linux)"
 readme = "README.pt-BR.md"
 requires-python = ">=3.11"
@@ -26,14 +26,14 @@ gui = ["PyGObject>=3.46"]
 dev = ["pytest>=8"]
 
 [project.scripts]
-blunix = "blunix.cli:main"
+soberix = "soberix.cli:main"
 
 [project.urls]
 Sober = "https://sober.vinegarhq.org/"
 "Documentação da config do Sober" = "https://vinegarhq.org/Sober/Configuration/index.html"
 
 [tool.setuptools]
-packages = ["blunix"]
+packages = ["soberix"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

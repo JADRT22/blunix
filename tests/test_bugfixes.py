@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import pytest
 
-from blunix import environment, mods
+from soberix import environment, mods
 
 
 def test_remove_path_rejects_traversal(tmp_path, monkeypatch):

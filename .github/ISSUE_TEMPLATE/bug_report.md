@@ -16,14 +16,14 @@ labels: bug
 
 **Environment**
 
-- Blunix version (or commit):
+- Soberix version (or commit):
 - How you run it: AppImage / from source
 - Linux distro and desktop environment:
 - Sober version (`flatpak info org.vinegarhq.Sober`):
 
 **Output**
 
-If applicable, run `blunix doctor` and paste the output here:
+If applicable, run `soberix doctor` and paste the output here:
 
 ```text
 

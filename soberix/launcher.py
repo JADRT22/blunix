@@ -94,8 +94,8 @@ def is_running() -> bool:
         ).stdout
     except OSError:
         return False
-    # evita falso-positivo com o próprio pgrep/blunix
+    # evita falso-positivo com o próprio pgrep/soberix
     return any(
         line for line in out.splitlines()
-        if "blunix" not in line and "pgrep" not in line and "sober" in line
+        if "soberix" not in line and "pgrep" not in line and "sober" in line
     )

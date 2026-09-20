@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Constrói um AppImage do Blunix (executor de arquivo único).
+# Constrói um AppImage do Soberix (executor de arquivo único).
 #
 # O AppImage usa o Python 3 + GTK/PyGObject do sistema (padrão em qualquer
 # distro Linux moderna com desktop). Duplo clique → abre.
 #
 # Uso:  ./tools/build-appimage.sh
-# Saída: Blunix-<versão>-x86_64.AppImage (na raiz do projeto)
+# Saída: Soberix-<versão>-x86_64.AppImage (na raiz do projeto)
 set -euo pipefail
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -14,7 +14,7 @@ cd "$PROJECT_ROOT"
 VERSION="$(grep -m1 '^version' pyproject.toml | sed 's/.*"\(.*\)".*/\1/')"
 ARCH="$(uname -m)"
 APPDIR="build/AppDir"
-OUT="Blunix-${VERSION}-${ARCH}.AppImage"
+OUT="Soberix-${VERSION}-${ARCH}.AppImage"
 
 echo "==> Versão: ${VERSION} | Arquitetura: ${ARCH}"
 
@@ -25,24 +25,24 @@ python3 -c "import gi; gi.require_version('Gtk','4.0'); import gi.repository.Gtk
 
 # ---------------------------------------------------------------- limpeza
 rm -rf "$APPDIR"
-mkdir -p "$APPDIR/usr/lib/blunix" "$APPDIR/usr/share/icons/hicolor/256x256/apps" \
+mkdir -p "$APPDIR/usr/lib/soberix" "$APPDIR/usr/share/icons/hicolor/256x256/apps" \
          "$APPDIR/usr/share/applications" "$APPDIR/usr/bin"
 
 # ---------------------------------------------------------------- AppRun
 cat > "$APPDIR/AppRun" <<'APPRUN'
 #!/usr/bin/env bash
-# AppRun do Blunix: executa o app com o Python do sistema.
+# AppRun do Soberix: executa o app com o Python do sistema.
 set -e
 HERE="$(cd "$(dirname "$(readlink -f "${0}")")" && pwd)"
 export APPDIR="${HERE}"
 export APPIMAGE="${APPIMAGE:-}"
 export GI_TYPELIB_PATH="${GI_TYPELIB_PATH:-}"
-exec python3 -s -P "${HERE}/usr/lib/blunix/run.py" "$@"
+exec python3 -s -P "${HERE}/usr/lib/soberix/run.py" "$@"
 APPRUN
 chmod +x "$APPDIR/AppRun"
 
 # ---------------------------------------------------------------- run.py (bootstrap do pacote)
-cat > "$APPDIR/usr/lib/blunix/run.py" <<'RUNPY'
+cat > "$APPDIR/usr/lib/soberix/run.py" <<'RUNPY'
 """Bootstrap: adiciona o dir do pacote ao sys.path e chama a GUI/CLI."""
 import os
 import sys
@@ -51,7 +51,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 if HERE not in sys.path:
     sys.path.insert(0, HERE)
 
-from blunix.cli import main  # noqa: E402
+from soberix.cli import main  # noqa: E402
 
 # Dentro do AppImage, sem argumentos = GUI (amigável para leigos)
 if len(sys.argv) <= 1:
@@ -60,19 +60,19 @@ sys.exit(main(sys.argv[1:]))
 RUNPY
 
 # ---------------------------------------------------------------- pacote
-cp -r blunix "$APPDIR/usr/lib/blunix/blunix"
-find "$APPDIR/usr/lib/blunix" -name '__pycache__' -type d -exec rm -rf {} + 2>/dev/null || true
-find "$APPDIR/usr/lib/blunix" -name '*.pyc' -delete 2>/dev/null || true
+cp -r soberix "$APPDIR/usr/lib/soberix/soberix"
+find "$APPDIR/usr/lib/soberix" -name '__pycache__' -type d -exec rm -rf {} + 2>/dev/null || true
+find "$APPDIR/usr/lib/soberix" -name '*.pyc' -delete 2>/dev/null || true
 
-cp "data/com.github.fernando.blunix.png" "$APPDIR/usr/share/icons/hicolor/256x256/apps/"
-mkdir -p "$APPDIR/usr/lib/blunix/share"
-cp "data/com.github.fernando.blunix.png" "$APPDIR/usr/lib/blunix/share/com.github.fernando.blunix.png"
+cp "data/com.github.fernando.soberix.png" "$APPDIR/usr/share/icons/hicolor/256x256/apps/"
+mkdir -p "$APPDIR/usr/lib/soberix/share"
+cp "data/com.github.fernando.soberix.png" "$APPDIR/usr/lib/soberix/share/com.github.fernando.soberix.png"
 
-sed "s|Exec=blunix gui|Exec=Blunix|; s|^Icon=.*|Icon=com.github.fernando.blunix|" \
-    data/blunix.desktop > "$APPDIR/usr/share/applications/com.github.fernando.blunix.desktop"
-cp "$APPDIR/usr/share/applications/com.github.fernando.blunix.desktop" "$APPDIR/com.github.fernando.blunix.desktop"
-cp "$APPDIR/usr/share/icons/hicolor/256x256/apps/com.github.fernando.blunix.png" "$APPDIR/.DirIcon"
-cp "$APPDIR/usr/share/icons/hicolor/256x256/apps/com.github.fernando.blunix.png" "$APPDIR/com.github.fernando.blunix.png"
+sed "s|Exec=soberix gui|Exec=Soberix|; s|^Icon=.*|Icon=com.github.fernando.soberix|" \
+    data/soberix.desktop > "$APPDIR/usr/share/applications/com.github.fernando.soberix.desktop"
+cp "$APPDIR/usr/share/applications/com.github.fernando.soberix.desktop" "$APPDIR/com.github.fernando.soberix.desktop"
+cp "$APPDIR/usr/share/icons/hicolor/256x256/apps/com.github.fernando.soberix.png" "$APPDIR/.DirIcon"
+cp "$APPDIR/usr/share/icons/hicolor/256x256/apps/com.github.fernando.soberix.png" "$APPDIR/com.github.fernando.soberix.png"
 
 # ---------------------------------------------------------------- appimagetool
 # Baixa appimagetool (ferramenta oficial, ~2 MB) se ainda não existir
@@ -101,4 +101,4 @@ chmod +x "$OUT"
 echo ""
 echo "✅ Pronto: $OUT"
 echo "   Envie esse arquivo para quem quiser — é um executor único."
-echo "   Dica: blunix install-menu cria o atalho no menu de aplicativos."
+echo "   Dica: soberix install-menu cria o atalho no menu de aplicativos."

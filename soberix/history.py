@@ -1,6 +1,6 @@
-"""Histórico de jogos (recentes) e favoritos do Blunix.
+"""Histórico de jogos (recentes) e favoritos do Soberix.
 
-Fica em ~/.local/state/blunix/games.json — só place IDs e apelidos,
+Fica em ~/.local/state/soberix/games.json — só place IDs e apelidos,
 nada sensível. Estrutura:
 {
   "recent": [{"id": "2753915549", "name": "Brookhaven RP", "ts": 1690000000}],
@@ -32,7 +32,7 @@ class GameEntry:
 
 
 def _path():
-    return constants.BLUNIX_STATE_DIR / "games.json"
+    return constants.SOBERIX_STATE_DIR / "games.json"
 
 
 def _load() -> dict:
@@ -49,7 +49,7 @@ def _load() -> dict:
 
 
 def _save(data: dict) -> None:
-    constants.BLUNIX_STATE_DIR.mkdir(parents=True, exist_ok=True)
+    constants.SOBERIX_STATE_DIR.mkdir(parents=True, exist_ok=True)
     tmp = _path().with_suffix(".json.tmp")
     tmp.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
     tmp.replace(_path())

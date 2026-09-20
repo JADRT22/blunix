@@ -1,7 +1,23 @@
 # Changelog
 
-All notable changes to Blunix are documented here, newest first.
+All notable changes to Soberix are documented here, newest first.
 Format inspired by [Bloxstrap's release notes](https://github.com/bloxstraplabs/bloxstrap/releases).
+
+## v1.2
+
+The rename release. Formerly known as **Blunix** — the name changed to **Soberix**
+to avoid conflicting with an existing Linux consulting company (Blunix GmbH, Berlin)
+and to make the Sober connection explicit.
+
+Changes
+
+- Project renamed to **Soberix** (package, app-id, icon, AppImage, repo)
+- The menu window now scales with the monitor resolution and desktop zoom
+  (no longer tiny on 1440p/4K or HiDPI)
+- GitHub repo moved to `JADRT22/soberix` (old links redirect)
+
+Note: users of Blunix ≤ 1.1 will see the built-in update checker offer v1.2 —
+the AppImage binary name changes from `Blunix-*.AppImage` to `Soberix-*.AppImage`.
 
 ## v1.1
 
@@ -28,7 +44,7 @@ The first stable release.
 
 Additions
 
-- **Recent & favorite games**: one-click replay chips on the home menu (favorites first, starred), manager card in System, `blunix games` CLI listing
+- **Recent & favorite games**: one-click replay chips on the home menu (favorites first, starred), manager card in System, `soberix games` CLI listing
 - **Update checker**: background check against GitHub Releases with a download banner — never blocks or crashes offline
 - **Quality profiles**: Light / Medium / Full presets applied automatically when pressing PLAY (no lock-in; Sober keeps working standalone and manual flags are preserved)
 - **FastFlags editor**: allowlist-safe (post-2025-09-30) with human-readable descriptions, plus the "Recommended" card with three impact levels

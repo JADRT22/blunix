@@ -11,5 +11,5 @@
 ## Checklist
 
 - [ ] No new runtime dependencies (stdlib only; GTK only in the GUI)
-- [ ] User-facing strings translated (PT + EN in `blunix/i18n.py`)
+- [ ] User-facing strings translated (PT + EN in `soberix/i18n.py`)
 - [ ] FastFlags changes stay within the allowlist

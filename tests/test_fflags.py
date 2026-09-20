@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from blunix import config, constants, fflags
+from soberix import config, constants, fflags
 
 
 @pytest.fixture(autouse=True)
@@ -65,7 +65,7 @@ def test_preset_unknown_raises(sober_cfg: Path):
 
 
 def test_preserved_unknown_keys_in_config(sober_cfg: Path):
-    """Chaves de config que o Blunix não conhece devem ser preservadas."""
+    """Chaves de config que o Soberix não conhece devem ser preservadas."""
     sober_cfg.write_text(json.dumps({"alguma_chave_futura": 42, "fflags": {}}), encoding="utf-8")
     fflags.set_flag("FFlagDebugSkyGray", True)
     data = config.parse_config_text(sober_cfg.read_text(encoding="utf-8"))

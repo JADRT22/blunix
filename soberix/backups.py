@@ -1,6 +1,6 @@
 """Backups do config.json do Sober.
 
-Backups ficam em ~/.local/share/blunix/backups/ e incluem apenas config.json
+Backups ficam em ~/.local/share/soberix/backups/ e incluem apenas config.json
 (nunca cookies nem estado de sessão).
 """
 from __future__ import annotations
@@ -27,8 +27,8 @@ class BackupInfo:
 
 
 def _backup_dir() -> Path:
-    constants.BLUNIX_BACKUP_DIR.mkdir(parents=True, exist_ok=True)
-    return constants.BLUNIX_BACKUP_DIR
+    constants.SOBERIX_BACKUP_DIR.mkdir(parents=True, exist_ok=True)
+    return constants.SOBERIX_BACKUP_DIR
 
 
 def create_backup(label: str | None = None, cfg_path: Path | None = None) -> BackupInfo:
@@ -52,7 +52,7 @@ def create_backup(label: str | None = None, cfg_path: Path | None = None) -> Bac
 
 
 def list_backups() -> list[BackupInfo]:
-    d = constants.BLUNIX_BACKUP_DIR
+    d = constants.SOBERIX_BACKUP_DIR
     if not d.is_dir():
         return []
     infos = []
@@ -64,7 +64,7 @@ def list_backups() -> list[BackupInfo]:
 def restore_backup(backup_path: Path, cfg_path: Path | None = None) -> Path:
     """Restaura um backup para o config.json do Sober (com backup prévio)."""
     backup_path = Path(backup_path)
-    backup_path = backup_path if backup_path.is_absolute() else constants.BLUNIX_BACKUP_DIR / backup_path
+    backup_path = backup_path if backup_path.is_absolute() else constants.SOBERIX_BACKUP_DIR / backup_path
     if not backup_path.is_file():
         raise FileNotFoundError(f"Backup não encontrado: {backup_path}")
     cfg_path = cfg_path or constants.SOBER_CONFIG_FILE

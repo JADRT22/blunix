@@ -1,4 +1,4 @@
-"""Entry point de `python -m blunix`.
+"""Entry point de `python -m soberix`.
 
 Sem argumentos abre a GUI; com argumentos, roda a CLI.
 """
@@ -12,7 +12,7 @@ def main() -> int:
         except ImportError as exc:
             print(
                 "GTK 4 / PyGObject não disponível — instale python-gobject e gtk4,\n"
-                f"ou use a CLI: python -m blunix --help\n({exc})",
+                f"ou use a CLI: python -m soberix --help\n({exc})",
                 file=sys.stderr,
             )
             return 2

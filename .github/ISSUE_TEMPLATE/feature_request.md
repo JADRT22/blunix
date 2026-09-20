@@ -1,6 +1,6 @@
 ---
 name: Feature request
-about: Suggest an idea for Blunix
+about: Suggest an idea for Soberix
 title: ""
 labels: enhancement
 ---

@@ -1,6 +1,6 @@
-"""Preferências simples do Blunix (ex.: perfil de qualidade escolhido).
+"""Preferências simples do Soberix (ex.: perfil de qualidade escolhido).
 
-Fica em ~/.local/state/blunix/settings.json — nada sensível.
+Fica em ~/.local/state/soberix/settings.json — nada sensível.
 """
 from __future__ import annotations
 
@@ -13,8 +13,8 @@ _DEFAULTS = {"profile": "medio", "language": "auto"}
 
 
 def _path() -> Path:
-    constants.BLUNIX_STATE_DIR.mkdir(parents=True, exist_ok=True)
-    return constants.BLUNIX_STATE_DIR / "settings.json"
+    constants.SOBERIX_STATE_DIR.mkdir(parents=True, exist_ok=True)
+    return constants.SOBERIX_STATE_DIR / "settings.json"
 
 
 def load() -> dict:

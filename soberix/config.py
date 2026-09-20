@@ -2,7 +2,7 @@
 
 O arquivo do Sober pode conter comentários `//` no topo, então toleramos
 linhas de comentário ao ler (estilo JSON5 mínimo). Toda escrita primeiro faz
-backup do arquivo atual em ~/.local/share/blunix/backups/.
+backup do arquivo atual em ~/.local/share/soberix/backups/.
 """
 from __future__ import annotations
 
@@ -95,7 +95,7 @@ def _backup_current(cfg_path: Path) -> Path | None:
     from .backups import create_backup  # import tardio evita ciclo
 
     stamp = time.strftime("%Y%m%d-%H%M%S")
-    dest = constants.BLUNIX_BACKUP_DIR / f"config-prewrite-{stamp}.json"
+    dest = constants.SOBERIX_BACKUP_DIR / f"config-prewrite-{stamp}.json"
     dest.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(cfg_path, dest)
     log.debug("Backup pré-escrita em %s", dest)
@@ -104,7 +104,7 @@ def _backup_current(cfg_path: Path) -> Path | None:
 
 def _serialize(data: dict[str, Any]) -> str:
     header = (
-        "// Editado pelo Blunix. Documentação: "
+        "// Editado pelo Soberix. Documentação: "
         + constants.VINEGAR_DOCS
         + "\n"
     )
@@ -163,7 +163,7 @@ def write_config(
     cfg_path.parent.mkdir(parents=True, exist_ok=True)
     if create_backup:
         _backup_current(cfg_path)
-    tmp = cfg_path.with_suffix(".json.blunix-tmp")
+    tmp = cfg_path.with_suffix(".json.soberix-tmp")
     tmp.write_text(_serialize(current), encoding="utf-8")
     tmp.replace(cfg_path)
     log.info("Config escrita em %s: %s", cfg_path, ", ".join(updates) or "(sem mudanças)")
