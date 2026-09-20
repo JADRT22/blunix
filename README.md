@@ -17,16 +17,6 @@
   does for Windows, built on top of <a href="https://sober.vinegarhq.org/">Sober</a>.
 </p>
 
-<h2 align="center">Screenshots</h2>
-
-<p align="center">
-  <img src="data/screenshots/menu.png" alt="Soberix home menu" width="420">
-  <img src="data/screenshots/discord.png" alt="Discord Rich Presence showing the current game" width="220">
-</p>
-<p align="center">
-  <img src="data/screenshots/settings.png" alt="Soberix settings: quality profile, system check, language, Discord Rich Presence and game history" width="640">
-</p>
-
 ---
 
 **Soberix** manages [Sober](https://sober.vinegarhq.org/) — the VinegarHQ runtime that runs the
