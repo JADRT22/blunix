@@ -34,6 +34,45 @@ def test_toggle_favorite_on_off():
     assert not history.is_favorite("42")
 
 
+def test_add_recent_resolve_updates_name(monkeypatch):
+    """resolve=True busca o nome oficial e atualiza a entrada (best effort)."""
+    history.clear()
+
+    class R:
+        def __init__(self, payload):
+            self._p = payload
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+        def read(self):
+            return self._p
+
+    payloads = iter([
+        b'{"universeId": 99}',                              # universes API
+        b'{"data": [{"name": "Brookhaven RP"}]}',          # games API
+    ])
+    monkeypatch.setattr(updates.urllib.request, "urlopen",
+                        lambda *a, **k: R(next(payloads)))
+    # o módulo history tem seu próprio urllib: patchea também
+    monkeypatch.setattr(history.urllib.request, "urlopen",
+                        lambda *a, **k: R(next(payloads, b"{}")))
+
+    done = []
+    history.add_recent("2753915549", resolve=True, on_name=done.append)
+    # espera a thread resolver (timeout generoso)
+    import time as _t
+    for _ in range(50):
+        _t.sleep(0.05)
+        if done:
+            break
+    assert done and done[0] == "Brookhaven RP"
+    assert history.recent()[0].name == "Brookhaven RP"
+
+
 def test_remove_and_clear():
     history.clear()
     history.add_recent("1", "One")

@@ -10,12 +10,18 @@ nada sensível. Estrutura:
 from __future__ import annotations
 
 import json
+import threading
 import time
+import urllib.request
 from dataclasses import dataclass
 
 from . import constants
 
 MAX_RECENT = 12
+
+# Resolução de nome real do jogo via APIs públicas do Roblox (best effort)
+_UNIVERSE_API = "https://apis.roblox.com/universes/v1/places/{id}/universe"
+_GAMES_API = "https://games.roblox.com/v1/games?universeIds={uid}"
 
 
 @dataclass(frozen=True)
@@ -55,8 +61,14 @@ def _normalize(entry: GameEntry | str) -> GameEntry:
     return GameEntry(id=str(entry), name=str(entry))
 
 
-def add_recent(place_id: str, name: str | None = None) -> None:
-    """Registra/Move um jogo para o topo dos recentes (mantém apelido conhecido)."""
+def add_recent(place_id: str, name: str | None = None,
+               resolve: bool = False, on_name=None) -> None:
+    """Registra/Move um jogo para o topo dos recentes (mantém apelido conhecido).
+
+    resolve=True dispara uma thread que busca o nome oficial do jogo na API
+    pública do Roblox (best effort, sem bloquear) e atualiza a entrada;
+    on_name(nome) é chamado quando a resolução termina (pode não chamar).
+    """
     place_id = str(place_id).strip()
     if not place_id:
         return
@@ -67,6 +79,39 @@ def add_recent(place_id: str, name: str | None = None) -> None:
     data["recent"] = [entry] + [e for e in data["recent"] if e["id"] != place_id]
     data["recent"] = data["recent"][:MAX_RECENT]
     _save(data)
+    if resolve:
+        threading.Thread(target=_resolve_name_worker,
+                         args=(place_id, on_name), daemon=True).start()
+
+
+def _resolve_name_worker(place_id: str, on_name=None) -> None:
+    """Busca o nome oficial do jogo; nunca levanta (best effort)."""
+    name = None
+    try:
+        req = urllib.request.Request(_UNIVERSE_API.format(id=place_id),
+                                     headers={"Accept": "application/json"})
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            uid = json.loads(resp.read().decode("utf-8")).get("universeId")
+        if uid:
+            req = urllib.request.Request(_GAMES_API.format(uid=uid),
+                                         headers={"Accept": "application/json"})
+            with urllib.request.urlopen(req, timeout=5) as resp:
+                items = json.loads(resp.read().decode("utf-8")).get("data") or []
+            name = items[0].get("name") if items else None
+    except (OSError, ValueError, IndexError, KeyError):
+        return  # offline/API mudou: fica o que já tinha
+    if not name:
+        return
+    data = _load()
+    for e in data["recent"]:
+        if e["id"] == place_id:
+            e["name"] = name
+    _save(data)
+    if on_name:
+        try:
+            on_name(name)
+        except Exception:  # noqa: BLE001 — callback é best effort
+            pass
 
 
 def recent() -> list[GameEntry]:

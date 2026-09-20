@@ -598,8 +598,9 @@ class BlunixWindow(Gtk.ApplicationWindow):
             _toast(self, t("dlg.err_profile"), str(exc), error=True)
             return
         if place:
-            name = launcher.extract_place_id(place) or place
-            history.add_recent(str(name))
+            place_id = str(launcher.extract_place_id(place) or place)
+            history.add_recent(place_id, resolve=True,
+                               on_name=lambda _n: GLib.idle_add(self._refresh_games_row))
             self._refresh_games_row()
         try:
             launcher.launch(place)

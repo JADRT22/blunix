@@ -254,8 +254,9 @@ def cmd_play(args: argparse.Namespace) -> int:
             return 0
         if place:
             from . import history
-            key = launcher.extract_place_id(place) or place
-            history.add_recent(str(key))
+            key = str(launcher.extract_place_id(place) or place)
+            history.add_recent(key, resolve=True)
+            print(f"Registrado nos recentes: {key}")
         result = launcher.launch(place, wait=args.wait)
     except launcher.LaunchError as exc:
         print(f"Erro: {exc}", file=sys.stderr)
