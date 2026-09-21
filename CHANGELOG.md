@@ -3,6 +3,28 @@
 All notable changes to Soberix are documented here, newest first.
 Format inspired by [Bloxstrap's release notes](https://github.com/bloxstraplabs/bloxstrap/releases).
 
+## v1.4
+
+The website & polish release.
+
+Additions
+
+- **Official website**: <https://jadrt22.github.io/soberix/> — overview with animated
+  background, feature showcase, screenshots, install steps and FAQ (GitHub Pages,
+  linked from the README and the repo homepage)
+
+Changes
+
+- Quality profile names (Light / Medium / Full / Default) are now translated in all
+  seven languages — the dropdown no longer shows hardcoded Portuguese words
+- Launcher shortcut no longer silently fails when opened from the app menu: the
+  chosen Python is verified to have PyGObject and the Exec line embeds PYTHONPATH
+
+Bug fixes
+
+- Fixed the app not opening from the desktop menu (two silent failure modes:
+  venv without `gi`, and `python -m soberix` failing outside the project folder)
+
 ## v1.3
 
 The languages release.

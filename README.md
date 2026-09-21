@@ -17,6 +17,15 @@
   does for Windows, built on top of <a href="https://sober.vinegarhq.org/">Sober</a>.
 </p>
 
+<p align="center">
+  <a href="https://jadrt22.github.io/soberix/"><b>🌐 Website</b></a> ·
+  <a href="https://github.com/JADRT22/soberix/releases/latest"><b>⬇ Download</b></a>
+</p>
+
+<p align="center">
+  <a href="https://jadrt22.github.io/soberix/"><img src="https://img.shields.io/badge/website-jadrt22.github.io%2Fsoberix-0A84FF?style=flat-square" alt="Website"></a>
+</p>
+
 ---
 
 **Soberix** manages [Sober](https://sober.vinegarhq.org/) — the VinegarHQ runtime that runs the
@@ -52,6 +61,8 @@ mods, and backups — behind a friendly interface.
 - 🖥️ **GTK4 GUI** *and* a full **CLI** — simple for beginners, scriptable for power users.
 
 ## 📥 Install
+
+> Full overview, screenshots and FAQ on the **[website](https://jadrt22.github.io/soberix/)**.
 
 > [!NOTE]
 > **Requirement:** the [Sober](https://sober.vinegarhq.org/) Flatpak.

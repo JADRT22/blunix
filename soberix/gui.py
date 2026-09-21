@@ -249,7 +249,7 @@ class SoberixWindow(Gtk.ApplicationWindow):
         )
 
     # ------------------------------------------------------------ Início (modo simples)
-    PROFILE_LABELS = (("leve", "leve"), ("medio", "medio"), ("completo", "completo"), ("default", "default"))
+    PROFILE_LABELS = (("leve", "ff.level_leve"), ("medio", "ff.level_medio"), ("completo", "ff.level_completo"), ("default", "ff.level_default"))
 
     def _build_menu_page(self) -> Gtk.Widget:
         """Menu compacto: logo à esquerda; JOGAR (azul-escuro) em cima,
@@ -353,7 +353,7 @@ class SoberixWindow(Gtk.ApplicationWindow):
         prof_card.append(t_lbl)
 
         row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
-        self.profile_dd = Gtk.DropDown(model=Gtk.StringList.new([lbl for lbl, _k in self.PROFILE_LABELS]))
+        self.profile_dd = Gtk.DropDown(model=Gtk.StringList.new([t(k) for _lbl, k in self.PROFILE_LABELS]))
         saved = settings.load().get("profile", "medio")
         keys = [k for _lbl, k in self.PROFILE_LABELS]
         if saved in keys:

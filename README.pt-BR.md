@@ -8,6 +8,8 @@
 [Sober](https://sober.vinegarhq.org/) — o runtime da VinegarHQ que roda o
 cliente Android do Roblox nativamente no Linux, sem Wine.
 
+> **[🌐 Site oficial](https://jadrt22.github.io/soberix/)** — visão geral, screenshots e FAQ.
+
 O Sober faz o trabalho pesado (rodar o Roblox). O Soberix apenas o *gerencia*:
 configurações, FastFlags, mods e backups — assim como o Bloxstrap faz para o
 cliente Windows.

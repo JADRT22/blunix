@@ -11,7 +11,7 @@ set -euo pipefail
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$PROJECT_ROOT"
 
-VERSION="$(grep -m1 '^version' pyproject.toml | sed 's/.*"\(.*\)".*/\1/')"
+VERSION="1.4"
 ARCH="$(uname -m)"
 APPDIR="build/AppDir"
 OUT="Soberix-${VERSION}-${ARCH}.AppImage"
