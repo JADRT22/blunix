@@ -1,208 +1,206 @@
-# Soberix (Português)
+<p align="center">
+  <img src="data/com.github.fernando.soberix.png" alt="Logo do Soberix" width="120">
+</p>
+
+<h1 align="center">Soberix</h1>
+
+<p align="center">
+  <a href="https://github.com/JADRT22/soberix/releases/latest"><img src="https://img.shields.io/github/v/release/JADRT22/soberix?style=flat-square" alt="Última release"></a>
+  <a href="https://github.com/JADRT22/soberix/stargazers"><img src="https://img.shields.io/github/stars/JADRT22/soberix?style=flat-square" alt="Stars"></a>
+  <a href="https://github.com/JADRT22/soberix/actions/workflows/tests.yml"><img src="https://img.shields.io/github/actions/workflow/status/JADRT22/soberix/tests.yml?branch=main&style=flat-square&label=tests" alt="Testes"></a>
+  <a href="https://github.com/JADRT22/soberix/blob/main/LICENSE"><img src="https://img.shields.io/github/license/JADRT22/soberix?style=flat-square" alt="Licença"></a>
+  <img src="https://img.shields.io/badge/platform-Linux-fcc624?style=flat-square" alt="Plataforma: Linux">
+</p>
+
+<p align="center">
+  Gerenciador de launcher de Roblox open-source para Linux — o que o <a href="https://github.com/bloxstraplabs/bloxstrap">Bloxstrap</a>
+  faz para o Windows, construído sobre o <a href="https://sober.vinegarhq.org/">Sober</a>.
+</p>
+
+<p align="center">
+  <a href="https://jadrt22.github.io/soberix/"><b>🌐 Site</b></a> ·
+  <a href="https://github.com/JADRT22/soberix/releases/latest"><b>⬇ Download</b></a>
+</p>
+
+---
+
+O **Soberix** gerencia o [Sober](https://sober.vinegarhq.org/) — o runtime da VinegarHQ que
+roda o cliente Android do Roblox nativamente no Linux, sem Wine. O Sober faz o trabalho
+pesado; o Soberix o gerencia do mesmo jeito que o Bloxstrap gerencia o cliente do Windows:
+perfis de qualidade, FastFlags, mods, activity tracking e backups — por trás de uma interface
+amigável.
+
+> [!WARNING]
+> Desde 30/09/2025, o Roblox só respeita FastFlags em uma **allowlist** — flags fora da lista
+> são ignoradas pelo cliente. O Soberix só escreve flags da allowlist conhecida.
+> Referência: [Sober tips & tricks](https://vinegarhq.org/Sober/Configuration/TipsAndTricks.html)
+
+## ✨ Funcionalidades
+
+- 🎮 **Jogar com um clique** — um menu compacto com o botão **JOGAR**; seu perfil de qualidade
+  é aplicado automaticamente a cada abertura. Sem lock-in: abrir o Sober direto continua
+  funcionando, e flags setadas manualmente são sempre preservadas.
+- 🕹️ **Activity tracking** — mostra o que você está jogando (nome real do jogo, resolvido pela
+  API pública do Roblox) e permite **reentrar no servidor exato** em que você estava, mesmo
+  depois de fechar o Sober — além de histórico de servidores visitados e ações rápidas na
+  taskbar (Jogar / Reentrar).
+- ⭐ **Jogos recentes e favoritos** — chips na tela inicial para reabrir um jogo com um clique.
+- 🔄 **Verificador de updates** — consulta o GitHub Releases e **baixa o novo AppImage** para
+  `~/Downloads`; o atalho do menu se reaponta sozinho quando você abre a nova versão.
+- 📊 **Perfis de qualidade** — presets *Leve* (mudança pequena), *Médio* (equilibrado) e
+  *Completo* (FPS máximo), cada um explicando exatamente o que muda antes de aplicar.
+- ⚡ **Editor de FastFlags** — seguro pela allowlist, com descrições legíveis do que cada flag
+  faz, além de modo manual para usuários avançados.
+- 🧩 **Gerenciador de mods** — instala mods `.zip` no `asset_overlay` do Sober (protegido
+  contra zip-slip), lista e remove — além de **mods populares em 1 clique**
+  (som de morte mudo embutido; sons/cursores clássicos assim que existir um espelho da
+  comunidade).
+- 💾 **Backups** — snapshots automáticos do `config.json` antes de cada escrita, com restore.
+- 🩺 **Doctor** — verifica CPU (SSE4.1/4.2), Flatpak, Sober e Vulkan.
+- 🌎 **7 idiomas** — English, Português, Español, Français, Deutsch, Русский, 日本語:
+  detectado automaticamente do locale do sistema, trocável na hora nas configurações.
+- 💬 **Discord Rich Presence** — um switch para mostrar o que você joga no Discord
+  (funcionalidade nativa do Sober, gerenciada com toggle seguro para backups).
+- 🖥️ **GUI GTK4** *e* um **CLI** completo — simples para iniciantes, scriptável para avançados.
+
+## 🤔 Por que não "usar o Bloxstrap logo"?
+
+- **O Bloxstrap é Windows-only** (WPF/.NET) e depende de mecanismos do Windows (registro,
+  `ClientSettings/ClientAppSettings.json`, pasta `Modifications/`) — e não está mais em
+  desenvolvimento ativo.
+- No Linux, a fundação correta é o **Sober** (Flatpak `org.vinegarhq.Sober`), que roda o
+  cliente **Android** do Roblox nativamente — sem Wine, sem camada de tradução.
+- O Sober é closed-source e Flatpak-only; os pontos de integração corretos são o
+  `config.json` e o `asset_overlay` documentados — exatamente o que o Soberix gerencia.
+
+## 📥 Instalação
+
+> Visão geral, screenshots e FAQ no **[site](https://jadrt22.github.io/soberix/)**.
 
 > [!NOTE]
-> Este é o README secundário. O principal, em inglês, está aqui:
-> **[README.md](README.md)** 🇬🇧
+> **Requisito:** o Flatpak [Sober](https://sober.vinegarhq.org/).
+> ```bash
+> flatpak install flathub org.vinegarhq.Sober
+> ```
 
-**Soberix** é um gerenciador estilo Bloxstrap para Linux, construído sobre o
-[Sober](https://sober.vinegarhq.org/) — o runtime da VinegarHQ que roda o
-cliente Android do Roblox nativamente no Linux, sem Wine.
+Baixe o AppImage mais recente na página de [**Releases**](https://github.com/JADRT22/soberix/releases/latest):
 
-> **[🌐 Site oficial](https://jadrt22.github.io/soberix/)** — visão geral, screenshots e FAQ.
+```bash
+chmod +x Soberix-*.AppImage
+./Soberix-*.AppImage
+```
 
-O Sober faz o trabalho pesado (rodar o Roblox). O Soberix apenas o *gerencia*:
-configurações, FastFlags, mods e backups — assim como o Bloxstrap faz para o
-cliente Windows.
+Também funciona com duplo clique (marque como executável uma vez). Novas releases são
+construídas automaticamente pelo CI — para atualizar, baixe o novo AppImage e substitua o
+antigo (o banner de update pode baixar para você). Suas configurações, flags e mods ficam em
+`~/.local/share`/`~/.local/state` e nunca são tocados.
 
-> **Aviso importante sobre FastFlags:** desde 30/09/2025 a Roblox usa uma
-> *allowlist* de FastFlags — flags fora da lista são **ignoradas** pelo cliente.
-> O Soberix trabalha apenas com flags da allowlist conhecida.
-> Referência: https://vinegarhq.org/Sober/Configuration/TipsAndTricks.html
+Opcionalmente, registre no menu de aplicativos (feito automaticamente na primeira abertura):
 
-## Por que não é um "Bloxstrap de verdade" para Linux?
+```bash
+./Soberix-*.AppImage install-menu
+```
 
-- **Bloxstrap é Windows-only** (WPF/.NET) e depende de mecanismos do Windows
-  (registro, `ClientSettings/ClientAppSettings.json`, pasta `Modifications/`).
-- No Linux, a base correta é o **Sober** (Flatpak `org.vinegarhq.Sober`), que
-  roda o cliente **Android** do Roblox nativamente — "faster than on Windows",
-  segundo a própria página do Flathub.
-- O Sober é fechado e distribuído exclusivamente via Flatpak; a integração
-  correta é via `config.json` e `asset_overlay`, documentados pela VinegarHQ.
+### Requisitos
 
-## Funcionalidades
+- Linux x86_64 com SSE4.1 e SSE4.2 (`grep -o sse4_1 /proc/cpuinfo`)
+- [Flatpak](https://flatpak.org/) com o Flathub configurado, mais o Flatpak do Sober
+- Python 3.11+ com PyGObject/GTK 4 ao rodar do código-fonte:
+  - Arch/CachyOS: `sudo pacman -S python-gobject gtk4`
+  - Debian/Ubuntu: `sudo apt install python3-gi gir1.2-gtk-4.0`
 
-- **Verificação de ambiente**: Flatpak, Sober instalado, arquitetura x86_64,
-  SSE4.1/SSE4.2 (obrigatórios), GPU com Vulkan.
-- **Editor de configuração** com todos os campos oficiais do Sober
-  (`discord_rpc_enabled`, `server_location_indicator_enabled`, `close_on_leave`,
-  `enable_gamemode`, `enable_hidpi`, `touch_mode`, `graphics_optimization_mode`,
-  `use_opengl`, `use_console_experience`, `enable_mobile_home_screen`,
-  `allow_gamepad_permission`, `use_libsecret`).
-- **Editor de FastFlags** restrito à allowlist, com botão **Recomendado** em
-  3 níveis — **Leve** (muda pouco), **Médio** (equilibrado) e **Completo
-  (muda muito)** — cada um explicando o que altera antes de aplicar.
-- **Gerenciador de mods** via `asset_overlay`: instala mods `.zip` mantendo a
-  estrutura de pastas exigida (espelha `content/…` do base.apk), lista e
-  remove mods instalados — e **mods populares em 1 clique** (som de morte mudo,
-  embutido offline; sons/cursores clássicos assim que houver espelho).
-- **Rastreamento de atividade**: mostra **o que você está jogando** (nome real,
-  via API do Roblox) no menu inicial e permite **reentrar no servidor exato**
-  em que você estava — mesmo depois de fechar o Sober — com histórico de
-  servidores e ações rápidas no ícone da barra de tarefas.
-- **Jogos recentes e favoritos**: chips na tela inicial para rejogar com 1 clique
-  (`soberix games` no CLI).
-- **Checagem de atualização**: consulta as Releases do GitHub, **baixa o novo
-  AppImage** para `~/Downloads` e o atalho do menu se atualiza sozinho ao abrir
-  a versão nova.
-- **Backups**: snapshot completo da config (`config.json` + fflags) com
-  restore e histórico automático antes de qualquer escrita.
-- **CLI completa** e **GUI GTK4** com abas (Geral, FastFlags, Mods, Backups).
-
-## Download (jeito fácil)
-
-Baixe o AppImage mais recente na página de **[Releases](https://github.com/JADRT22/soberix/releases/latest)**:
-
-1. Baixe **`Soberix-<versão>-x86_64.AppImage`**
-2. Clique com botão direito → **Propriedades → Permitir executar** (só na 1ª vez)
-3. Dê duplo clique → janela abre com um botão grande **🎮 JOGAR**
-4. Opcional: cole o número ou link de um jogo e clique **Abrir jogo**
-
-> Toda versão nova é gerada automaticamente pela CI do GitHub — igual ao
-> Bloxstrap, que publica as releases dele por GitHub Actions. Para atualizar,
-> basta baixar o AppImage novo e substituir o antigo (suas configurações,
-> flags e mods ficam em `~/.local/share`/`~/.local/state` e não são tocadas).
-
-## Rodar do código (para quem gosta de mexer 🔧)
+### Rodar do código-fonte
 
 ```bash
 git clone https://github.com/JADRT22/soberix.git
 cd soberix
 python3 -m soberix            # GUI
-python3 -m soberix doctor     # CLI (não precisa de GTK)
+python3 -m soberix doctor     # CLI (sem precisar de GTK)
 ```
 
-Ou gere seu próprio AppImage: `./tools/build-appimage.sh`
+Ou construa seu próprio AppImage: `./tools/build-appimage.sh`
 
-Para o ícone ficar no menu de aplicativos:
+## 🚀 Uso
 
-```bash
-./Soberix-*-x86_64.AppImage install-menu
+A GUI abre em um menu pequeno: **JOGAR** (aplica seu perfil e abre o Roblox) e
+**Configurações** (perfil de qualidade, FastFlags, mods, servidores, backups, checagens do
+sistema, idioma).
+
+Para quem prefere o terminal:
+
+```text
+soberix play                       # abre o Roblox com seu perfil salvo
+soberix play 2753915549            # abre um jogo por place ID ou URL
+soberix play 2753915549 --profile light|medium|full|default|off
+
+soberix doctor                     # checagem do ambiente (CPU, flatpak, Sober, Vulkan)
+soberix install-menu               # cria o atalho no menu de aplicativos
+soberix config show|set|reset      # opções oficiais do config do Sober
+soberix fflags list|get|set|unset  # FastFlags seguros pela allowlist
+soberix fflags preset leve|medio|completo|default
+soberix mods list|install|remove|clear   # mods no asset_overlay (.zip)
+soberix mod-presets [id]           # mods populares (mute death sound funciona offline)
+soberix games                      # jogos recentes (* = favorito)
+soberix status                     # jogo/servidor detectado agora nos logs do Sober
+soberix rejoin                     # reabre o último servidor em que você esteve
+soberix servers                    # servidores visitados (com links de rejoin)
+soberix backup create|list|restore # snapshots do config.json
+soberix launch [--place ID]        # abertura simples do Sober
 ```
 
-A janela mostra **"Tudo pronto! ✅"** quando o ambiente está OK. Se faltar
-algo, aparece o problema em português simples, e os **detalhes técnicos**
-ficam escondidos atrás de um botão.
+## 🔧 Como o Soberix modifica o Sober
 
-> O AppImage usa o Python 3 + GTK 4 do sistema (presentes em qualquer distro
-> com desktop). Precisa do **Sober instalado** — se não estiver, o app avisa
-> com o comando pronto para copiar.
-
-### CLI amigável
-
-```bash
-soberix play              # abre o Roblox
-soberix play 2753915549   # abre um jogo pelo número
-soberix play "https://www.roblox.com/games/2753915549/Brookhaven-RP"   # link do site
-soberix play --profile light|medium|full   # aliases em inglês (ou leve/medio/completo)
-```
-
-## Requisitos
-
-- Linux x86_64 com SSE4.1 e SSE4.2 (`grep -o sse4_1 /proc/cpuinfo`)
-- [Flatpak](https://flatpak.org/) configurado com o Flathub
-- Sober instalado: `flatpak install flathub org.vinegarhq.Sober`
-- Python 3.11+ com PyGObject (GTK 4) para a GUI
-  - Arch/CachyOS: `sudo pacman -S python-gobject gtk4`
-  - Debian/Ubuntu: `sudo apt install python3-gi gir1.2-gtk-4.0`
-
-## Instalação (a partir do código)
-
-```bash
-cd ~/Projetos/soberix
-./tools/build-appimage.sh         # gera Soberix-<versão>-x86_64.AppImage
-./Soberix-*-x86_64.AppImage install-menu
-```
-
-Ou apenas use sem instalar:
-
-```bash
-python3 -m soberix            # GUI
-python3 -m soberix --help     # CLI
-```
-
-## Uso (avançado)
-
-### CLI
-
-```bash
-soberix doctor                       # verifica o ambiente
-soberix play 2753915549              # modo simples: joga (nº, link ou nada)
-soberix install-menu                 # atalho no menu de aplicativos
-soberix config show                  # mostra a config atual do Sober
-soberix config set close_on_leave true
-soberix config set touch_mode fake-off
-soberix fflags list                  # flags da allowlist
-soberix fflags set FIntDebugForceMSAASamples 4
-soberix fflags preset performance    # aplica preset
-soberix mods list                    # mods instalados no asset_overlay
-soberix mods install meumod.zip      # instala um mod
-soberix mods remove ArrowCursor.png  # remove por caminho relativo
-soberix status                       # jogo/servidor detectado nos logs do Sober
-soberix rejoin                       # reentra no último servidor
-soberix servers                      # servidores visitados
-soberix backup create                # cria backup
-soberix backup list                  # lista backups
-soberix backup restore <arquivo>     # restaura
-soberix launch                       # abre o Roblox (Sober)
-soberix launch --place 123456789     # abre uma experience
-```
-
-### GUI
-
-```bash
-python3 -m soberix
-```
-
-Abas: **Início** (botão JOGAR ROBLOX + status), **Config** (opções do Sober),
-**FastFlags** (allowlist + presets), **Mods** (asset_overlay),
-**Backups** (criar/restaurar).
-
-## Como o Soberix modifica o Sober
-
-| Recurso        | Mecanismo                                                       |
+| O quê          | Mecanismo                                                       |
 |----------------|-----------------------------------------------------------------|
-| Config/Fflags  | `~/.var/app/org.vinegarhq.Sober/config/sober/config.json`       |
+| Config/fflags  | `~/.var/app/org.vinegarhq.Sober/config/sober/config.json`       |
 | Mods           | `~/.var/app/org.vinegarhq.Sober/data/sober/asset_overlay/`      |
-| Backups        | `~/.local/share/soberix/backups/`                              |
-| Logs           | `~/.local/state/soberix/soberix.log`                          |
+| Backups        | `~/.local/share/soberix/backups/`                               |
+| Estado Soberix | `~/.local/state/soberix/` (configurações, histórico, log)       |
 
-O Sober só lê a config no boot: após mudar algo, feche o Roblox e abra de novo
-(vale para FastFlags e mods).
+O Sober só lê o config na inicialização: depois de mudar qualquer coisa, feche e reabra o
+Roblox (vale para FastFlags e mods).
 
-## Segurança e privacidade
+## 🗺️ Como se compara
 
-- Não faz download de binários; mods vêm de arquivos `.zip` que **você** fornece.
-- Nunca lê nem transmite o cookie de sessão do Roblox (`cookies`, `state`).
-- Backup inclui apenas `config.json`.
-- Sem telemetria. Código 100% aberto.
+| | Bloxstrap (Windows) | Sober (Linux) | **Soberix (Linux)** |
+|---|---|---|---|
+| Open source | ✅ MIT | ❌ Closed | ✅ MIT |
+| Papel | Gerencia o cliente Windows | Roda o cliente Android | Gerencia o Sober |
+| Distribuição | Installer (publicado pelo CI) | Flatpak | AppImage (publicado pelo CI) |
 
-## Avisos legais
+## 🔒 Segurança & privacidade
 
-- Soberix **não é afiliado** à Roblox Corporation nem à VinegarHQ.
-- Uso de clientes não oficiais pode, em tese, violar os ToS da Roblox. A
-  VinegarHQ declara que o uso normal do Sober "muito raramente" gera moderação;
-  use por sua conta e risco.
-- Não use para: multi-instance, bots, exploits. O Sober bloqueia multi-instance
-  por design e a Roblox considera a prática maliciosa.
+- O app nunca lê nem transmite seu cookie de sessão do Roblox (`cookies`, `state`).
+- Os backups contêm apenas o `config.json`.
+- Sem telemetria. 100% open source. O activity tracking lê apenas os arquivos de log locais
+  do Sober.
+- Mods são arquivos `.zip` que você fornece (ou o preset embutido offline), protegidos contra
+  zip-slip.
 
-## Limitações conhecidas
+## ⚠️ Legal & limitações
 
-- **FastFlags**: somente a allowlist pós-30/09/2025 funciona. O Soberix valida
-  contra ela, mas a Roblox pode alterar a lista a qualquer momento.
-- **Studio**: o Sober não roda o Roblox Studio. Para Studio no Linux, use o
-  Vinegar (via Wine) — fora do escopo do Soberix.
-- **Multi-instance**: não suportado (nem pelo Sober, nem aqui).
+- O Soberix **não é afiliado** à Roblox Corporation nem à VinegarHQ.
+- Clientes não oficiais podem em teoria violar os ToS do Roblox; a VinegarHQ afirma que o uso
+  normal do Sober "muito raramente" gera moderação. Use por sua conta e risco. Sem
+  multi-instance, bots ou exploits — o Sober bloqueia multi-instance por design.
+- **FastFlags**: só a allowlist pós-30/09/2025 funciona; a Roblox pode mudá-la a qualquer
+  momento.
+- **Studio**: o Sober não roda o Roblox Studio (para isso, use o Vinegar via Wine).
 
-## Licença
+## 🤝 Contribuindo
 
-MIT.
+Issues e PRs são bem-vindos! O projeto é Python puro (só stdlib; GTK4/PyGObject para a GUI).
+Rode a suíte de testes com `python3 -m pytest` (os smoke tests da GUI precisam de GTK4/Xvfb;
+a GUI precisa de python-gobject e gtk4 instalados).
+
+## 📄 Licença
+
+[MIT](LICENSE) — a mesma do Bloxstrap.
+
+---
+
+<p align="center">
+  <sub><i>Não afiliado à Roblox Corporation nem à VinegarHQ.</i></sub>
+</p>
+
+<p align="center"><a href="README.md">🇺🇸 Read in English</a></p>
