@@ -3,6 +3,19 @@
 All notable changes to Soberix are documented here, newest first.
 Format inspired by [Bloxstrap's release notes](https://github.com/bloxstraplabs/bloxstrap/releases).
 
+## v1.4.1
+
+Bug fixes
+
+- Fixed the internal version stuck at 1.3: the v1.4 AppImage shipped with
+  `VERSION=1.3`, so the update checker offered the same release to users who
+  already had it. Now correctly reports 1.4.1 and offers the update to
+  everyone on v1.4 or older
+- The version now lives in a single place (`soberix/constants.py`) —
+  `pyproject.toml` reads it via a setuptools dynamic attr and the AppImage
+  build extracts it, so the package, the AppImage and the update checker
+  can no longer diverge
+
 ## v1.4
 
 The website & polish release.
