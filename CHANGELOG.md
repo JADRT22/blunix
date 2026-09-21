@@ -3,6 +3,15 @@
 All notable changes to Soberix are documented here, newest first.
 Format inspired by [Bloxstrap's release notes](https://github.com/bloxstraplabs/bloxstrap/releases).
 
+## v1.6.2
+
+Bug fixes
+
+- Fixed the release CI (for real this time): each smoke test now creates a
+  Gtk.Application with a unique id and no D-Bus registration — two apps
+  with the same id collided on the session bus ("object already exported").
+  Verified locally with pytest on the system Python: 3/3 pass
+
 ## v1.6.1
 
 Bug fixes

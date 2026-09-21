@@ -20,7 +20,6 @@ if not Gtk.is_initialized():
     assert Gtk.is_initialized(), "GTK não inicializou (display indisponível?)"
 
 app = Gtk.Application(application_id="com.github.fernando.soberix.smoke")
-app.register(None)
 
 from soberix.gui import SoberixWindow  # noqa: E402
 

@@ -6,7 +6,7 @@ from pathlib import Path
 
 APP_NAME = "Soberix"
 APP_ID = "com.github.fernando.soberix"
-VERSION = "1.6.1"
+VERSION = "1.6.2"
 
 FLATPAK_APP_ID = "org.vinegarhq.Sober"
 FLATPAK_REF = f"app/{FLATPAK_APP_ID}/x86_64/stable"

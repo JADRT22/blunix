@@ -9,6 +9,8 @@ Sem GTK, pula — os unitários normais continuam valendo.
 """
 from __future__ import annotations
 
+import uuid
+
 import pytest
 
 gi = pytest.importorskip("gi", reason="PyGObject/GTK4 não disponível")
@@ -25,8 +27,11 @@ def gtk_app():
     if not Gtk.is_initialized():
         Gtk.init()
         assert Gtk.is_initialized(), "GTK não inicializou (display indisponível?)"
-    app = Gtk.Application(application_id="com.github.fernando.soberix.test")
-    app.register(None)
+    # id único + sem register(): dois apps com o mesmo id no mesmo barramento
+    # D-Bus colidem ("object already exported") entre testes.
+    app = Gtk.Application(
+        application_id=f"com.github.fernando.soberix.smoke-{uuid.uuid4().hex[:8]}"
+    )
     yield app
     for win in app.get_windows():
         win.destroy()
