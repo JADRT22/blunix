@@ -3,6 +3,22 @@
 All notable changes to Soberix are documented here, newest first.
 Format inspired by [Bloxstrap's release notes](https://github.com/bloxstraplabs/bloxstrap/releases).
 
+## v1.5.1
+
+Polish for the activity tracking release.
+
+Additions
+
+- **Real game names everywhere**: the "Playing now" card, the new Servers
+  tab and the home chips show the game's official name (resolved in the
+  background via Roblox's public API) instead of a raw place ID —
+  "Brookhaven RP", not "136406881576517"
+- **Servers tab**: the last 30 visited servers with per-server Join,
+  remove and clear — the Bloxstrap-style server history
+- **Copy invite link** button next to Rejoin (wl-copy/xclip/xsel)
+- **Server location on the card** when the log exposes a public IP
+- New CLI command: `soberix servers`
+
 ## v1.5
 
 The activity tracking release.
