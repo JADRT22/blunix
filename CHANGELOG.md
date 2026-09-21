@@ -3,6 +3,16 @@
 All notable changes to Soberix are documented here, newest first.
 Format inspired by [Bloxstrap's release notes](https://github.com/bloxstraplabs/bloxstrap/releases).
 
+## Unreleased
+
+Additions
+
+- **Self-updating menu shortcut**: on startup (when running from an AppImage),
+  Soberix looks for a newer `Soberix-*.AppImage` in the standard download
+  folders and repoints the applications-menu shortcut to it — no more stale
+  shortcuts launching the old binary after you download an update. A toast
+  confirms the change (translated in all 7 languages)
+
 ## v1.4.1
 
 Bug fixes

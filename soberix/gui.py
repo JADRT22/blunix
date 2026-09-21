@@ -15,6 +15,7 @@ gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk, Gio, GLib, Gdk  # noqa: E402
 
 from . import backups, config, constants, desktop_integration, environment, fflags, history, launcher, mods, settings, updates  # noqa: E402
+from . import shortcut_refresh  # noqa: E402
 from .i18n import t, set_lang  # noqa: E402
 from . import i18n  # noqa: E402
 
@@ -1185,6 +1186,20 @@ class SoberixApp(Gtk.Application):
             desktop_integration.install_menu()
         except OSError:
             pass
+        # Atalho desatualizado? (novo AppImage baixado, atalho apontando para o
+        # binário velho) Reaponta para o mais novo encontrado nos downloads.
+        try:
+            upd = shortcut_refresh.refresh_shortcut()
+        except Exception:  # noqa: BLE001 — conveniência, nunca deve derrubar a GUI
+            upd = None
+        if upd is not None:
+            GLib.idle_add(
+                lambda: _toast(
+                    self.props.active_window,
+                    t("shortcut.updated_title"),
+                    t("shortcut.updated_detail", old=upd.old_exec, new=upd.new_exec),
+                ) or False
+            )
 
 
 def run() -> int:
