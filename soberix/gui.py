@@ -646,6 +646,7 @@ class SoberixWindow(Gtk.ApplicationWindow):
 
         PlaceIds já resolvidos antes são pulados (cache em memória).
         """
+        cache = getattr(self, "_resolved_names", None)
         if cache is None:
             cache = self._resolved_names = set()
         if place_id in cache:

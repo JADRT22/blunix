@@ -3,6 +3,14 @@
 All notable changes to Soberix are documented here, newest first.
 Format inspired by [Bloxstrap's release notes](https://github.com/bloxstraplabs/bloxstrap/releases).
 
+## v1.5.2
+
+Bug fixes
+
+- Fixed the app not opening at all (v1.5.1 regression): a lost assignment in
+  the game-name resolver crashed the menu build with `UnboundLocalError` —
+  the window never appeared and no shortcut worked
+
 ## v1.5.1
 
 Polish for the activity tracking release.
