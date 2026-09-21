@@ -111,17 +111,37 @@ def find_icon() -> Path | None:
     return None
 
 
+def _can_import_gi(python_bin: str) -> bool:
+    """O interpretador tem PyGObject (gi)? Necessário para a GUI abrir."""
+    try:
+        r = subprocess.run(
+            [python_bin, "-c", "import gi"],
+            capture_output=True, timeout=10,
+        )
+        return r.returncode == 0
+    except (OSError, subprocess.TimeoutExpired):
+        return False
+
+
 def _exec_line() -> str:
-    """Como o menu deve abrir o Soberix (AppImage > venv > python -m)."""
+    """Como o menu deve abrir o Soberix (AppImage > venv > python -m).
+
+    O Python escolhido PRECISA ter PyGObject (gi) — um venv sem o pacote
+    morreria silenciosamente ao abrir pelo menu (issue: 'não abre').
+    E como o menu não roda dentro da pasta do projeto, `python -m soberix`
+    precisa de PYTHONPATH apontando para a raiz do pacote.
+    """
     appimage = os.environ.get("APPIMAGE")
     if appimage and Path(appimage).is_file():
         return appimage
-    project_run = Path(__file__).resolve().parent.parent / ".venv" / "bin" / "python"
-    if project_run.is_file():
+    project_root = Path(__file__).resolve().parent.parent
+    project_run = project_root / ".venv" / "bin" / "python"
+    if project_run.is_file() and _can_import_gi(str(project_run)):
         return f"{project_run} -m soberix"
     if shutil.which("soberix"):
         return "soberix gui"
-    return f"{shutil.which('python3') or 'python3'} -m soberix"
+    sys_python = shutil.which("python3") or "python3"
+    return f"/usr/bin/env PYTHONPATH={project_root} {sys_python} -m soberix"
 
 
 def install_menu() -> MenuInstallResult:
