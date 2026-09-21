@@ -176,6 +176,21 @@ Categories=Game;Utility;
 Keywords=roblox;sober;launcher;play;bloxstrap;
 Terminal=false
 StartupWMClass=Soberix
+
+[Desktop Action play]
+Name=Play Roblox
+Name[pt]=Jogar Roblox
+Exec={exec_line} play
+
+[Desktop Action rejoin]
+Name=Rejoin last server
+Name[pt]=Reentrar no último servidor
+Exec={exec_line} rejoin
+
+[Desktop Action games]
+Name=Servers & history
+Name[pt]=Servidores e histórico
+Exec={exec_line} gui
 """
     target = apps_dir / f"{DESKTOP_ID}.desktop"
     try:

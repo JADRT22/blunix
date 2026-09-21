@@ -51,12 +51,14 @@ mods, and backups — behind a friendly interface.
 - ⚡ **FastFlags editor** — allowlist-safe, with human-readable descriptions of what each
   flag does, plus manual mode for advanced users.
 - 🧩 **Mod manager** — installs mod `.zip` files into Sober's `asset_overlay`
-  (zip-slip protected), lists and removes them.
+  (zip-slip protected), lists and removes them — plus **1-click popular mods**
+  (old death sounds, classic cursors).
 - 💾 **Backups** — automatic snapshots of `config.json` before every write, with restore.
 - 🩺 **Doctor** — checks CPU (SSE4.1/4.2), Flatpak, Sober and Vulkan.
 - 🕹️ **Activity tracking** — shows what you're playing (real game name, resolved
   via Roblox's API) and lets you **rejoin the exact server** you were on, even
-  after closing Sober — plus a visited-servers history
+  after closing Sober — plus a visited-servers history and taskbar quick
+  actions (Play / Rejoin) on the app icon
 - 🌎 **7 languages** — English, Português, Español, Français, Deutsch, Русский, 日本語:
   auto-detected from your system locale, switchable instantly in settings.
 - 💬 **Discord Rich Presence** — one switch to show what you're playing on Discord
@@ -123,6 +125,7 @@ soberix games                     # recent games (* = favorite)
 soberix status                     # game/server currently detected in Sober's logs
 soberix rejoin                     # reopen the last server you were on
 soberix servers                    # visited servers (with rejoin links)
+soberix mod-presets [id]           # popular mods: old death sounds, classic cursors
 soberix backup create|list|restore # config.json snapshots
 soberix launch [--place ID]        # plain Sober launch
 ```

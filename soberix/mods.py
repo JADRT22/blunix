@@ -72,6 +72,26 @@ def _validate_zip_member(name: str) -> None:
         )
 
 
+def install_file(rel_path: str, src: Path, *, overwrite: bool = True) -> str:
+    """Instala um arquivo único no overlay (usado pelos presets de mods).
+
+    Mesmas validações do zip: extensão permitida, sem path traversal,
+    sem prefixos bloqueados. Retorna o caminho relativo instalado.
+    """
+    rel_path = rel_path.replace("\\", "/").strip("/")
+    _validate_zip_member(rel_path)
+    if not src.is_file():
+        raise ModError(f"Arquivo de origem não encontrado: {src}")
+    root = overlay_root()
+    dest = root / rel_path
+    if dest.exists() and not overwrite:
+        raise ModError(f"Destino já existe (use overwrite): {rel_path}")
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(src, dest)
+    log.info("Mod instalado: %s", rel_path)
+    return rel_path
+
+
 def install_zip(zip_path: Path, *, overwrite: bool = True) -> list[str]:
     """Instala um mod .zip no asset_overlay, preservando a estrutura de pastas.
 

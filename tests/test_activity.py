@@ -87,7 +87,13 @@ def test_recent_server_activity_escaneia_sessoes(tmp_path: Path, monkeypatch):
     assert act is not None and act.job_id == "c67569c5-6580-4804-992b-ad7f7593bf8f"
 
 
-def test_recent_server_activity_sem_logs(tmp_path: Path):
+def test_recent_server_activity_sem_logs(tmp_path: Path, monkeypatch):
+    """Sem atividade corrente (latest.log ausente) e sem logs em tmp: None.
+
+    O _latest_log real é isolado — senão o teste dependeria de o Sober
+    estar rodando na máquina (log de sessão com join quebraria o teste).
+    """
+    monkeypatch.setattr(activity, "_latest_log", lambda: tmp_path / "inexistente.log")
     assert activity.recent_server_activity(log_dir=tmp_path) is None
 
 

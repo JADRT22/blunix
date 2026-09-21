@@ -3,6 +3,21 @@
 All notable changes to Soberix are documented here, newest first.
 Format inspired by [Bloxstrap's release notes](https://github.com/bloxstraplabs/bloxstrap/releases).
 
+## v1.6
+
+The mods & quick actions release.
+
+Additions
+
+- **Popular mods, 1 click**: the Mods tab now offers classic community
+  mods — old death sounds (2006/2013) and the 2006 cursor set — installed
+  with one button (CLI: `soberix mod-presets [id]`), with per-file
+  fallback when the network fails
+- **Taskbar quick actions**: the app icon's right-click menu gains
+  Play / Rejoin last server / Servers & history (desktop actions)
+- **GUI smoke tests** on CI (Xvfb): the real GTK window is built on every
+  push — would have caught the v1.5.1 "app not opening" regression
+
 ## v1.5.2
 
 Bug fixes

@@ -8,7 +8,7 @@ import sys
 import time
 from pathlib import Path
 
-from . import activity, config, constants, environment, fflags, launcher, mods, backups, desktop_integration, settings, history
+from . import activity, config, constants, environment, fflags, launcher, mod_presets, mods, backups, desktop_integration, settings, history
 
 log = logging.getLogger("soberix")
 
@@ -274,6 +274,30 @@ def cmd_rejoin(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_mod_presets(args: argparse.Namespace) -> int:
+    """Lista ou instala presets de mods populares (sons/cursores clássicos)."""
+    if not args.preset:
+        print("Presets disponíveis:")
+        for pid, display, desc, files in mod_presets.MOD_PRESETS:
+            print(f"  {pid:<18} {display} — {desc} ({len(files)} arquivo(s))")
+        print("Instalar: soberix mod-presets <id>")
+        return 0
+    try:
+        installed, failed = mod_presets.install_preset(args.preset)
+    except mod_presets.PresetError as exc:
+        print(f"Erro: {exc}", file=sys.stderr)
+        return 1
+    for rel in installed:
+        print(f"  ✔ {rel}")
+    for rel in failed:
+        print(f"  ✘ {rel}", file=sys.stderr)
+    if failed:
+        print("Alguns arquivos falharam (rede/indisponível).", file=sys.stderr)
+        return 1
+    print("Reinicie o Roblox para aplicar.")
+    return 0
+
+
 def cmd_servers(_args: argparse.Namespace) -> int:
     """Lista os servidores visitados (rejoin: soberix rejoin)."""
     servers = history.server_history()
@@ -445,6 +469,10 @@ def build_parser() -> argparse.ArgumentParser:
 
     p = sub.add_parser("servers", help="lista os servidores visitados")
     p.set_defaults(func=cmd_servers)
+
+    p = sub.add_parser("mod-presets", help="lista/instala mods populares (sons, cursores)")
+    p.add_argument("preset", nargs="?", default=None, help="id do preset (sem arg: lista)")
+    p.set_defaults(func=cmd_mod_presets)
 
     p = sub.add_parser("games", help="lista jogos recentes (* = favorito)")
     p.set_defaults(func=cmd_games)

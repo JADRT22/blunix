@@ -15,7 +15,7 @@ import gi
 gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk, Gio, GLib, Gdk, Pango  # noqa: E402
 
-from . import activity, backups, config, constants, desktop_integration, environment, fflags, history, launcher, mods, settings, updates  # noqa: E402
+from . import activity, backups, config, constants, desktop_integration, environment, fflags, history, launcher, mod_presets, mods, settings, updates  # noqa: E402
 from . import shortcut_refresh  # noqa: E402
 from .i18n import t, set_lang  # noqa: E402
 from . import i18n  # noqa: E402
@@ -1298,12 +1298,68 @@ class SoberixWindow(Gtk.ApplicationWindow):
         btn_row.append(btn_clear)
         outer.append(btn_row)
 
+        # ---- presets de mods populares (1 clique)
+        lbl = Gtk.Label()
+        lbl.set_markup(f"<b>{t('mods.presets')}</b>")
+        lbl.set_halign(Gtk.Align.START)
+        outer.append(lbl)
+
+        self._preset_buttons: dict[str, Gtk.Button] = {}
+        presets_list = Gtk.ListBox()
+        presets_list.set_selection_mode(Gtk.SelectionMode.NONE)
+        presets_list.add_css_class("boxed-list")
+        for pid, display, desc, _files in mod_presets.MOD_PRESETS:
+            row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8,
+                          margin_top=6, margin_bottom=6, margin_start=8, margin_end=8)
+            txt = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=1)
+            l1 = Gtk.Label()
+            l1.set_markup(f"<b>{GLib.markup_escape_text(display)}</b>")
+            l1.set_halign(Gtk.Align.START)
+            l2 = Gtk.Label(label=desc)
+            l2.set_halign(Gtk.Align.START)
+            l2.add_css_class("dim")
+            txt.append(l1)
+            txt.append(l2)
+            btn = Gtk.Button(label=t("mods.preset_install"))
+            btn.add_css_class("suggested-action")
+            btn.connect("clicked", self._on_install_preset, pid)
+            self._preset_buttons[pid] = btn
+            row.append(txt)
+            row.append(btn)
+            presets_list.append(row)
+        outer.append(presets_list)
+
         self.mods_list = Gtk.ListBox()
         self.mods_list.set_selection_mode(Gtk.SelectionMode.SINGLE)
         self.mods_list.add_css_class("boxed-list")
         self._refresh_mods()
         outer.append(self._scrolled(self.mods_list))
         return outer
+
+    def _on_install_preset(self, btn: Gtk.Button, pid: str) -> None:
+        """Baixa e instala o preset fora da main thread; toast no fim."""
+        btn.set_sensitive(False)
+
+        def worker():
+            installed, failed = mod_presets.install_preset(pid)
+            GLib.idle_add(self._on_preset_done, pid, installed, failed, btn)
+
+        threading.Thread(target=worker, daemon=True).start()
+
+    def _on_preset_done(self, pid: str, installed: list, failed: list,
+                        btn: Gtk.Button) -> bool:
+        btn.set_sensitive(True)
+        self._refresh_mods()
+        display = next((d for p, d, _ds, _f in mod_presets.MOD_PRESETS if p == pid), pid)
+        if installed and not failed:
+            _toast(self, t("mods.preset_ok", name=display), t("sys.restart_roblox"))
+        elif installed:
+            _toast(self, t("mods.preset_ok", name=display),
+                   t("mods.preset_partial", failed=", ".join(failed)))
+        else:
+            _toast(self, t("mods.preset_fail", name=display),
+                   t("mods.preset_offline"), error=True)
+        return False
 
     def _refresh_mods(self) -> None:
         child = self.mods_list.get_first_child()
