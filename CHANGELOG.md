@@ -3,6 +3,16 @@
 All notable changes to Soberix are documented here, newest first.
 Format inspired by [Bloxstrap's release notes](https://github.com/bloxstraplabs/bloxstrap/releases).
 
+## v1.6.3
+
+Bug fixes
+
+- Dormant mod presets (old death sounds, classic cursors) no longer show a
+  working-looking Install button that always failed with a network error:
+  they now appear grayed out as "soon" with an explanation, and the CLI
+  refuses them with a clear message. The embedded mute death sound is
+  unaffected
+
 ## v1.6.2
 
 Bug fixes

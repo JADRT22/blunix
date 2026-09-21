@@ -279,9 +279,15 @@ def cmd_mod_presets(args: argparse.Namespace) -> int:
     if not args.preset:
         print("Presets disponíveis:")
         for pid, display, desc, files in mod_presets.MOD_PRESETS:
-            print(f"  {pid:<18} {display} — {desc} ({len(files)} arquivo(s))")
+            mark = "" if mod_presets.preset_available(pid) else "  (indisponível — sem espelho de assets)"
+            print(f"  {pid:<18} {display} — {desc} ({len(files)} arquivo(s)){mark}")
         print("Instalar: soberix mod-presets <id>")
         return 0
+    if not mod_presets.preset_available(args.preset):
+        print("Este preset está indisponível: os assets clássicos perderam o "
+              "repositório original e ainda não há espelho da comunidade.",
+              file=sys.stderr)
+        return 1
     try:
         installed, failed = mod_presets.install_preset(args.preset)
     except mod_presets.PresetError as exc:

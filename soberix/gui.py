@@ -1309,20 +1309,26 @@ class SoberixWindow(Gtk.ApplicationWindow):
         presets_list.set_selection_mode(Gtk.SelectionMode.NONE)
         presets_list.add_css_class("boxed-list")
         for pid, display, desc, _files in mod_presets.MOD_PRESETS:
+            available = mod_presets.preset_available(pid)
             row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8,
                           margin_top=6, margin_bottom=6, margin_start=8, margin_end=8)
             txt = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=1)
             l1 = Gtk.Label()
-            l1.set_markup(f"<b>{GLib.markup_escape_text(display)}</b>")
+            l1.set_markup(f"<b>{GLib.markup_escape_text(display)}</b>" if available
+                          else f"{GLib.markup_escape_text(display)} <small><i>({GLib.markup_escape_text(t('mods.preset_soon'))})</i></small>")
             l1.set_halign(Gtk.Align.START)
             l2 = Gtk.Label(label=desc)
             l2.set_halign(Gtk.Align.START)
             l2.add_css_class("dim")
+            if not available:
+                l2.set_text(t("mods.preset_no_mirror"))
             txt.append(l1)
             txt.append(l2)
             btn = Gtk.Button(label=t("mods.preset_install"))
             btn.add_css_class("suggested-action")
-            btn.connect("clicked", self._on_install_preset, pid)
+            btn.set_sensitive(available)
+            if available:
+                btn.connect("clicked", self._on_install_preset, pid)
             self._preset_buttons[pid] = btn
             row.append(txt)
             row.append(btn)

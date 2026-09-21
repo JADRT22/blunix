@@ -72,6 +72,18 @@ def get_preset(name: str) -> tuple[str, str, tuple[tuple[str, str], ...]]:
     )
 
 
+def preset_available(name: str) -> bool:
+    """True se o preset pode ser instalado agora (embutido ou espelho ativo).
+
+    Presets dormientes (sem espelho de assets) devem aparecer desabilitados
+    na GUI/CLI em vez de falhar com erro de rede ao clicar.
+    """
+    if MIRROR_BASE:
+        return True
+    _pid, _display, files = get_preset(name)
+    return any(spec.startswith("embedded:") for _p, spec in files)
+
+
 def _mute_mp3() -> bytes:
     from .mod_assets import muted_death_sound
 
