@@ -3,7 +3,9 @@
 All notable changes to Soberix are documented here, newest first.
 Format inspired by [Bloxstrap's release notes](https://github.com/bloxstraplabs/bloxstrap/releases).
 
-## Unreleased
+## v1.5
+
+The activity tracking release.
 
 Additions
 
