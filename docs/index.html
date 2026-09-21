@@ -75,7 +75,6 @@
   .hero { text-align: center; padding: 96px 0 60px; }
   .hero .logo {
     width: 116px; height: 116px; border-radius: 26px;
-    box-shadow: 0 20px 70px rgba(10,132,255,.3);
     animation: float 6s ease-in-out infinite;
   }
   @keyframes float { 50% { transform: translateY(-12px); } }
@@ -128,6 +127,10 @@
   }
   .feat-shot:hover { transform: translateY(-6px); border-color: rgba(10,132,255,.45); box-shadow: 0 30px 70px rgba(10,132,255,.16); }
   .feat-shot img { width: 100%; display: block; border-radius: 9px; object-fit: contain; }
+
+  .feat-row.wide { display: block; }
+  .feat-row.wide .feat-text { max-width: 680px; margin: 0 auto 22px; text-align: center; }
+  .feat-row.wide .feat-shot { padding: 18px; }
 
   /* ---------- chips grid ---------- */
   .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; }
@@ -229,7 +232,7 @@
       <div class="feat-shot"><img src="screenshots/discord.png" alt="Discord Rich Presence showing the current Roblox game"></div>
     </div>
 
-    <div class="feat-row reveal">
+    <div class="feat-row wide reveal">
       <div class="feat-text">
         <h3>Everything in one place</h3>
         <p>Quality profiles, an allowlist-safe FastFlags editor, mod management, config backups, a system doctor and seven languages — no JSON editing, no terminal required. Power users get a full CLI too.</p>
