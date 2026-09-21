@@ -3,6 +3,33 @@
 All notable changes to Soberix are documented here, newest first.
 Format inspired by [Bloxstrap's release notes](https://github.com/bloxstraplabs/bloxstrap/releases).
 
+## Unreleased
+
+Additions
+
+- **Activity tracking** (the Bloxstrap-style feature Soberix was missing):
+  Soberix now reads the Sober's own logs (`sober_logs/latest.log`) to detect
+  which game and server you are on — no background spy process, just log
+  parsing. The home menu shows a **"Playing now"** card with a
+  **↻ Rejoin server** button that reopens the exact server you were on
+  (`roblox://…&gameInstanceId=…`)
+- **Server history** (`game_servers.json`): the last 30 visited servers are
+  recorded while you play, so **rejoin works even after closing Sober**
+- New CLI commands: `soberix status` (detected game/server, uptime),
+  `soberix rejoin` (`--now` for the live session) and `soberix where`
+  (server location when the log exposes a public IP)
+- The update banner's **Download button now downloads the new AppImage**
+  straight into `~/Downloads` (atomic write, executable bit set) — opening
+  it then triggers the automatic shortcut repoint. Falls back to opening
+  the release page when there is no asset
+
+Bug fixes
+
+- Fixed "Erro ao aplicar o perfil: Preset desconhecido: 'ff.level_medio'"
+  (v1.4 regression): the translated quality-profile dropdown passed its
+  translation key instead of the preset id, so applying a profile from the
+  System tab always failed
+
 ## v1.4.2
 
 Additions

@@ -5,9 +5,10 @@ import argparse
 import json
 import logging
 import sys
+import time
 from pathlib import Path
 
-from . import config, constants, environment, fflags, launcher, mods, backups, desktop_integration, settings
+from . import activity, config, constants, environment, fflags, launcher, mods, backups, desktop_integration, settings, history
 
 log = logging.getLogger("soberix")
 
@@ -219,6 +220,75 @@ def cmd_backup_restore(args: argparse.Namespace) -> int:
     return 0
 
 
+# ---------------------------------------------------------------- status/rejoin/where
+def _format_uptime(ts: float) -> str:
+    secs = max(0, int(time.time() - ts))
+    h, rem = divmod(secs, 3600)
+    m, s = divmod(rem, 60)
+    return f"{h}h{m:02d}m" if h else (f"{m}m{s:02d}s" if m else f"{s}s")
+
+
+def cmd_status(_args: argparse.Namespace) -> int:
+    """Mostra o jogo/servidor detectado nos logs do Sober."""
+    act = activity.recent_server_activity()
+    if act is None:
+        print("Nenhuma atividade detectada nos logs do Sober.")
+        return 1
+    running = " (Sober rodando)" if activity.is_sober_running() else ""
+    print(f"Jogo: place {act.place_id} · servidor {act.job_id or '?'}{running}")
+    if act.universe_id:
+        print(f"Universe: {act.universe_id}")
+    if act.started_ts:
+        print(f"Entrou há: {_format_uptime(act.started_ts)}")
+    if act.server_ip:
+        loc = activity.fetch_server_location(act.server_ip)
+        if loc:
+            where = ", ".join(x for x in (loc.city, loc.region, loc.country) if x)
+            print(f"Servidor: {where or act.server_ip}")
+        else:
+            print(f"Servidor IP: {act.server_ip}")
+    if act.job_id:
+        print(f"Rejoin: soberix rejoin")
+    return 0
+
+
+def cmd_rejoin(args: argparse.Namespace) -> int:
+    """Reentra no último servidor em que o usuário esteve."""
+    entry = history.last_server() if not args.now else None
+    act = activity.recent_server_activity() if args.now or entry is None else None
+    url = activity.rejoin_url(act) if act is not None else None
+    if url is None and entry is not None:
+        url = (f"roblox://experiences/start?placeId={entry['place_id']}"
+               f"&gameInstanceId={entry['job_id']}")
+    if url is None:
+        print("Nenhum servidor recente para reentrar.", file=sys.stderr)
+        return 1
+    info = entry or {}
+    print(f"Reentrando: place {info.get('place_id', '?')} · servidor {info.get('job_id', act.job_id if act else '?')}")
+    try:
+        launcher.launch_url(url)
+    except launcher.LaunchError as exc:
+        print(f"Erro: {exc}", file=sys.stderr)
+        return 1
+    print("Abrindo o Roblox no servidor… 🎮")
+    return 0
+
+
+def cmd_where(args: argparse.Namespace) -> int:
+    """Localização aproximada do servidor atual (ipinfo.io)."""
+    act = activity.recent_server_activity()
+    if act is None or not act.server_ip:
+        print("Não sei onde você está — nenhum servidor nos logs do Sober.")
+        return 1
+    loc = activity.fetch_server_location(act.server_ip)
+    if loc is None:
+        print(f"Não consegui consultar a localização agora (IP {act.server_ip}).")
+        return 1
+    where = ", ".join(x for x in (loc.city, loc.region, loc.country) if x)
+    print(f"Servidor: {where} ({act.server_ip})")
+    return 0
+
+
 # ---------------------------------------------------------------- play (modo simples)
 def cmd_play(args: argparse.Namespace) -> int:
     """Modo simples: aplica o perfil de flags escolhido e joga.
@@ -349,6 +419,16 @@ def build_parser() -> argparse.ArgumentParser:
 
     p = sub.add_parser("install-menu", help="cria atalho no menu de aplicativos (ícone)")
     p.set_defaults(func=cmd_install_menu)
+
+    p = sub.add_parser("status", help="jogo/servidor detectado nos logs do Sober")
+    p.set_defaults(func=cmd_status)
+
+    p = sub.add_parser("rejoin", help="reentra no último servidor visitado")
+    p.add_argument("--now", action="store_true", help="usa o log da sessão atual, ignora histórico")
+    p.set_defaults(func=cmd_rejoin)
+
+    p = sub.add_parser("where", help="localização aproximada do servidor atual")
+    p.set_defaults(func=cmd_where)
 
     p = sub.add_parser("games", help="lista jogos recentes (* = favorito)")
     p.set_defaults(func=cmd_games)

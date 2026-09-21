@@ -14,7 +14,7 @@ import gi
 gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk, Gio, GLib, Gdk  # noqa: E402
 
-from . import backups, config, constants, desktop_integration, environment, fflags, history, launcher, mods, settings, updates  # noqa: E402
+from . import activity, backups, config, constants, desktop_integration, environment, fflags, history, launcher, mods, settings, updates  # noqa: E402
 from . import shortcut_refresh  # noqa: E402
 from .i18n import t, set_lang  # noqa: E402
 from . import i18n  # noqa: E402
@@ -212,6 +212,9 @@ class SoberixWindow(Gtk.ApplicationWindow):
 
     def _on_main_close(self, *_a) -> bool:
         """Fechar o menu encerra o app (nada fica rodando em background)."""
+        watcher = getattr(self, "_activity_watcher", None)
+        if watcher is not None:
+            watcher.stop()
         if getattr(self, "settings_win", None) is not None:
             self.settings_win.destroy()
         self.destroy()
@@ -296,6 +299,14 @@ class SoberixWindow(Gtk.ApplicationWindow):
         self.games_row = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
         self._refresh_games_row()
         col.append(self.games_row)
+
+        # "jogando agora" / último servidor (activity tracking via logs do Sober)
+        self.activity_row = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
+        self.activity_row.set_margin_top(4)
+        col.append(self.activity_row)
+        self._current_activity = None
+        self._refresh_activity_row()
+        self._start_activity_watcher()
 
         btn_conf = Gtk.Button()
         btn_conf.add_css_class("conf-btn")
@@ -521,8 +532,13 @@ class SoberixWindow(Gtk.ApplicationWindow):
             self.home_status.set_visible(True)
 
     def _selected_profile(self) -> str:
+        """Id do preset (leve/medio/completo/default) — nunca a chave de tradução.
+
+        regressão v1.4: retornava 'ff.level_medio', que o stage_preset rejeitava
+        ('Preset desconhecido: ff.level_medio') ao aplicar o perfil.
+        """
         idx = self.profile_dd.get_selected()
-        return self.PROFILE_LABELS[min(idx, len(self.PROFILE_LABELS) - 1)][1]
+        return self.PROFILE_LABELS[min(idx, len(self.PROFILE_LABELS) - 1)][0]
 
     def _on_lang_changed(self, dd, _pspec) -> None:
         """Aplica o idioma na hora: salva e reconstrói menu + configuração."""
@@ -598,6 +614,87 @@ class SoberixWindow(Gtk.ApplicationWindow):
     def _on_chip_play(self, _btn: Gtk.Button, place_id: str) -> None:
         self._play(place_id)
 
+    # ------------------------------------------------------------ activity tracking
+    def _start_activity_watcher(self) -> None:
+        """Tail dos logs do Sober em background: 'jogando agora' + histórico."""
+        self._activity_watcher = activity.ActivityWatcher(
+            on_change=lambda act: GLib.idle_add(self._on_activity_change, act),
+            on_game_loaded=lambda act: GLib.idle_add(self._on_game_loaded, act),
+        )
+        self._activity_watcher.start()
+
+    def _on_activity_change(self, act) -> bool:
+        self._current_activity = act
+        self._refresh_activity_row()
+        return False
+
+    def _on_game_loaded(self, act) -> bool:
+        """Novo (jogo, servidor): grava no histórico de servidores + recentes."""
+        try:
+            if act.job_id:
+                history.add_server(act.place_id, act.job_id, act.universe_id)
+            history.add_recent(act.place_id, resolve=True)
+        except Exception:  # noqa: BLE001 — histórico é best effort
+            pass
+        return False
+
+    def _refresh_activity_row(self) -> None:
+        """Card 'Jogando agora' (ou 'último servidor', com o Sober fechado)."""
+        if not hasattr(self, "activity_row"):
+            return
+        child = self.activity_row.get_first_child()
+        while child:
+            nxt = child.get_next_sibling()
+            self.activity_row.remove(child)
+            child = nxt
+
+        act = self._current_activity
+        if act is None:
+            act = activity.recent_server_activity()
+            self._current_activity = act
+
+        names = {e.id: e.name for e in history.recent()}
+        if act is not None:
+            name = names.get(act.place_id, act.place_id)
+            lbl = Gtk.Label()
+            lbl.set_markup(f"<small>🎮 {GLib.markup_escape_text(t('act.playing', name=name))}</small>")
+            lbl.set_wrap(True)
+            self.activity_row.append(lbl)
+            if act.job_id:
+                btn = Gtk.Button(label=t("act.rejoin"))
+                btn.add_css_class("flat")
+                btn.connect("clicked", self._on_rejoin, act)
+                self.activity_row.append(btn)
+            return
+
+        last = history.last_server()
+        if last:
+            name = names.get(last["place_id"], last.get("name") or last["place_id"])
+            lbl = Gtk.Label()
+            lbl.set_markup(f"<small>{GLib.markup_escape_text(t('act.last_server', name=name))}</small>")
+            lbl.set_wrap(True)
+            self.activity_row.append(lbl)
+            btn = Gtk.Button(label=t("act.rejoin"))
+            btn.add_css_class("flat")
+            btn.connect("clicked", self._on_rejoin, None)
+            self.activity_row.append(btn)
+
+    def _on_rejoin(self, _btn: Gtk.Button, act) -> None:
+        """Reentra no servidor atual (ou no último do histórico)."""
+        url = activity.rejoin_url(act)
+        if not url:
+            last = history.last_server()
+            if last:
+                url = (f"roblox://experiences/start?placeId={last['place_id']}"
+                       f"&gameInstanceId={last['job_id']}")
+        if not url:
+            _toast(self, t("act.rejoin"), t("act.none"), error=True)
+            return
+        try:
+            launcher.launch_url(url)
+        except launcher.LaunchError as exc:
+            _toast(self, t("dlg.err_launch"), str(exc), error=True)
+
     def _refresh_games_card(self) -> None:
         """Card de gerenciamento na aba Sistema (não bloqueia se ausente)."""
         if not hasattr(self, "games_list"):
@@ -671,14 +768,44 @@ class SoberixWindow(Gtk.ApplicationWindow):
         self.upd_label.set_text(t("upd.available", latest=info.latest))
         self.upd_banner.set_visible(True)
         self.upd_banner._soberix_url = info.url
+        self.upd_banner._soberix_downloads = info.download_urls
         return False
 
     def _on_open_release(self, _btn: Gtk.Button) -> None:
+        """Baixa o AppImage novo para ~/Downloads (dispara o auto-repoint do
+        atalho na próxima abertura) ou, sem asset, abre a página da release."""
+        urls = getattr(self.upd_banner, "_soberix_downloads", ()) or ()
+        if urls:
+            self._download_update_async(urls[0])
+            return
         url = getattr(self.upd_banner, "_soberix_url", None) or f"https://github.com/{updates.REPO}/releases/latest"
         try:
             Gtk.show_uri(None, url, Gdk.CURRENT_TIME)
         except Exception:  # noqa: BLE001 — sem navegador: mostra o link
             _toast(self, t("upd.download"), t("upd.err_open", url=url), error=True)
+
+    def _download_update_async(self, url: str) -> None:
+        btn = self.upd_banner and next(
+            (c for c in self.upd_banner if isinstance(c, Gtk.Button)), None
+        )
+        if btn is not None:
+            btn.set_sensitive(False)
+
+        def worker():
+            ok, dest = updates.download_asset(url)
+            GLib.idle_add(self._on_update_downloaded, ok, dest, btn)
+
+        threading.Thread(target=worker, daemon=True).start()
+
+    def _on_update_downloaded(self, ok: bool, dest, btn) -> bool:
+        if btn is not None:
+            btn.set_sensitive(True)
+        if ok:
+            _toast(self, t("upd.done_title"), t("upd.done_detail", name=Path(dest).name))
+        else:
+            url = getattr(self.upd_banner, "_soberix_url", None) or f"https://github.com/{updates.REPO}/releases/latest"
+            _toast(self, t("upd.download"), t("upd.err_open", url=url), error=True)
+        return False
 
     def _play(self, place: str | None) -> None:
         checks = environment.run_checks()

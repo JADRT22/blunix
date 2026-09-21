@@ -85,6 +85,23 @@ def launch(place_id: str | None = None, *, wait: bool = False) -> subprocess.Pop
     return subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
+def launch_url(url: str, *, wait: bool = False) -> subprocess.Popen | int:
+    """Lança um deep link roblox:// completo, preservando todos os parâmetros.
+
+    launch()/extract_place_id() reduzem o link ao placeId — o que mata o
+    gameInstanceId do rejoin. Para reentrar no MESMO servidor, o link precisa
+    chegar inteiro ao Sober.
+    """
+    url = (url or "").strip()
+    if not url.startswith(("roblox://", "roblox-player:")):
+        raise LaunchError(f"Deep link inválido: {url!r}")
+    cmd = ["flatpak", "run", constants.FLATPAK_APP_ID, url]
+    log.info("Lançando deep link: %s", " ".join(cmd))
+    if wait:
+        return subprocess.run(cmd, check=False).returncode
+    return subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+
 def is_running() -> bool:
     """Verifica se existe processo 'sober' rodando."""
     try:

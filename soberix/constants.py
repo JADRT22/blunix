@@ -32,6 +32,8 @@ SOBER_CONFIG_DIR = SOBER_VAR_BASE / "config" / "sober"
 SOBER_CONFIG_FILE = SOBER_CONFIG_DIR / "config.json"
 SOBER_DATA_DIR = SOBER_VAR_BASE / "data" / "sober"
 SOBER_ASSET_OVERLAY = SOBER_DATA_DIR / "asset_overlay"
+SOBER_LOG_DIR = SOBER_DATA_DIR / "sober_logs"
+SOBER_LATEST_LOG = SOBER_LOG_DIR / "latest.log"
 
 # Dados do Soberix
 SOBERIX_DATA_DIR = _xdg("XDG_DATA_HOME", Path(".local/share")) / "soberix"

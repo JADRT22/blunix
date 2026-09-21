@@ -152,3 +152,64 @@ def remove(place_id: str) -> None:
 
 def clear() -> None:
     _save({"recent": [], "favorites": []})
+
+
+# ---------------------------------------------------------------- servidores (rejoin)
+def _servers_path():
+    return constants.SOBERIX_STATE_DIR / "game_servers.json"
+
+
+def _load_servers() -> dict:
+    p = _servers_path()
+    if not p.is_file():
+        return {"servers": []}
+    try:
+        data = json.loads(p.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return {"servers": []}
+    if not isinstance(data.get("servers"), list):
+        data["servers"] = []
+    return data
+
+
+def _save_servers(data: dict) -> None:
+    constants.SOBERIX_STATE_DIR.mkdir(parents=True, exist_ok=True)
+    tmp = _servers_path().with_suffix(".json.tmp")
+    tmp.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+    tmp.replace(_servers_path())
+
+
+MAX_SERVERS = 30
+
+
+def add_server(place_id: str, job_id: str, universe_id: str | None = None,
+               name: str | None = None, ts: float | None = None) -> None:
+    """Registra/atualiza um servidor visitado (topo da lista)."""
+    place_id, job_id = str(place_id).strip(), str(job_id).strip()
+    if not place_id or not job_id:
+        return
+    data = _load_servers()
+    known = {s["job_id"]: s for s in data["servers"]}
+    entry = {
+        "place_id": place_id,
+        "job_id": job_id,
+        "universe_id": universe_id,
+        "name": name or (known.get(job_id, {}).get("name") or place_id),
+        "ts": ts or time.time(),
+    }
+    data["servers"] = [entry] + [s for s in data["servers"] if s["job_id"] != job_id]
+    data["servers"] = data["servers"][:MAX_SERVERS]
+    _save_servers(data)
+
+
+def server_history() -> list[dict]:
+    return list(_load_servers()["servers"])
+
+
+def last_server() -> dict | None:
+    servers = server_history()
+    return servers[0] if servers else None
+
+
+def clear_servers() -> None:
+    _save_servers({"servers": []})

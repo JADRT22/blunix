@@ -6,9 +6,11 @@ versão local. Falha de rede nunca propaga: retorna found=False.
 from __future__ import annotations
 
 import json
+import os
 import re
 import urllib.request
 from dataclasses import dataclass
+from pathlib import Path
 
 from . import constants
 
@@ -26,6 +28,8 @@ class UpdateInfo:
     latest: str
     url: str
     found: bool
+    # URLs de download dos assets (AppImage etc.) da release mais recente
+    download_urls: tuple[str, ...] = ()
 
 
 def _parse(v: str) -> tuple[int, int, int] | None:
@@ -53,6 +57,44 @@ def check() -> UpdateInfo:
         return info
     tag = data.get("tag_name") or ""
     url = data.get("html_url") or f"https://github.com/{REPO}/releases/latest"
+    downloads = tuple(
+        a["browser_download_url"]
+        for a in data.get("assets") or []
+        if isinstance(a, dict) and a.get("name", "").endswith(".AppImage")
+    )
     if not is_newer(tag, constants.VERSION):
-        return UpdateInfo(current=constants.VERSION, latest=tag.lstrip("v"), url=url, found=False)
-    return UpdateInfo(current=constants.VERSION, latest=tag.lstrip("v"), url=url, found=True)
+        return UpdateInfo(current=constants.VERSION, latest=tag.lstrip("v"), url=url,
+                          found=False, download_urls=downloads)
+    return UpdateInfo(current=constants.VERSION, latest=tag.lstrip("v"), url=url,
+                      found=True, download_urls=downloads)
+
+
+def download_asset(url: str, timeout: float = 60.0) -> tuple[bool, str]:
+    """Baixa um asset (AppImage) para ~/Downloads, pronto para executar.
+
+    Escrita atômica (.part -> rename) e chmod +x. Retorna (ok, caminho).
+    """
+    if not url.startswith("http"):
+        return False, ""
+    dest = Path.home() / "Downloads" / url.rsplit("/", 1)[-1]
+    if not dest.name:
+        return False, ""
+    try:
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        tmp = dest.with_suffix(dest.suffix + ".part")
+        req = urllib.request.Request(url, headers={"User-Agent": "soberix/1.5"})
+        with urllib.request.urlopen(req, timeout=timeout) as resp, open(tmp, "wb") as f:
+            while True:
+                chunk = resp.read(256 * 1024)
+                if not chunk:
+                    break
+                f.write(chunk)
+        tmp.replace(dest)
+        os.chmod(dest, 0o755)
+        return True, str(dest)
+    except (OSError, ValueError):
+        try:
+            tmp.unlink(missing_ok=True)
+        except (OSError, NameError, UnboundLocalError):
+            pass
+        return False, ""
