@@ -3,6 +3,14 @@
 All notable changes to Soberix are documented here, newest first.
 Format inspired by [Bloxstrap's release notes](https://github.com/bloxstraplabs/bloxstrap/releases).
 
+## v1.6.1
+
+Bug fixes
+
+- Fixed the release CI: the new GUI smoke tests called `Gtk.init()` and
+  checked its return, but PyGObject returns `None` — the check now uses
+  `Gtk.is_initialized()` (validated locally against the system Python)
+
 ## v1.6
 
 The mods & quick actions release.

@@ -19,6 +19,12 @@ from gi.repository import Gtk  # noqa: E402
 
 @pytest.fixture()
 def gtk_app():
+    # GTK4 exige init explícito antes de criar qualquer widget — sem isso
+    # a construção da janela falha no CI (xvfb). No PyGObject, Gtk.init()
+    # retorna None (não bool): valide com Gtk.is_initialized().
+    if not Gtk.is_initialized():
+        Gtk.init()
+        assert Gtk.is_initialized(), "GTK não inicializou (display indisponível?)"
     app = Gtk.Application(application_id="com.github.fernando.soberix.test")
     app.register(None)
     yield app
