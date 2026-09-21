@@ -43,11 +43,17 @@ cliente Windows.
   (muda muito)** — cada um explicando o que altera antes de aplicar.
 - **Gerenciador de mods** via `asset_overlay`: instala mods `.zip` mantendo a
   estrutura de pastas exigida (espelha `content/…` do base.apk), lista e
-  remove mods instalados.
+  remove mods instalados — e **mods populares em 1 clique** (som de morte mudo,
+  embutido offline; sons/cursores clássicos assim que houver espelho).
+- **Rastreamento de atividade**: mostra **o que você está jogando** (nome real,
+  via API do Roblox) no menu inicial e permite **reentrar no servidor exato**
+  em que você estava — mesmo depois de fechar o Sober — com histórico de
+  servidores e ações rápidas no ícone da barra de tarefas.
 - **Jogos recentes e favoritos**: chips na tela inicial para rejogar com 1 clique
   (`soberix games` no CLI).
-- **Checagem de atualização**: consulta as Releases do GitHub e oferece o download
-  quando há versão nova.
+- **Checagem de atualização**: consulta as Releases do GitHub, **baixa o novo
+  AppImage** para `~/Downloads` e o atalho do menu se atualiza sozinho ao abrir
+  a versão nova.
 - **Backups**: snapshot completo da config (`config.json` + fflags) com
   restore e histórico automático antes de qualquer escrita.
 - **CLI completa** e **GUI GTK4** com abas (Geral, FastFlags, Mods, Backups).
