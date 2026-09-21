@@ -9,6 +9,17 @@ The activity tracking release.
 
 Additions
 
+- **Real game names everywhere**: the "Playing now" card, the servers tab and
+  the home chips show the game's official name (resolved via Roblox's public
+  API in the background) instead of a raw place ID — "Brookhaven RP", not
+  "136406881576517"
+- **Servers tab**: the last 30 visited servers with per-server Join, remove
+  and clear — the Bloxstrap-style server history
+- **Copy invite link** button next to Rejoin (uses wl-copy/xclip/xsel)
+- **Server location on the card**: shows city/region/country when the log
+  exposes a public server IP (ipinfo.io)
+- New CLI command: `soberix servers` (visited servers with timestamps)
+
 - **Activity tracking** (the Bloxstrap-style feature Soberix was missing):
   Soberix now reads the Sober's own logs (`sober_logs/latest.log`) to detect
   which game and server you are on — no background spy process, just log

@@ -54,6 +54,9 @@ mods, and backups — behind a friendly interface.
   (zip-slip protected), lists and removes them.
 - 💾 **Backups** — automatic snapshots of `config.json` before every write, with restore.
 - 🩺 **Doctor** — checks CPU (SSE4.1/4.2), Flatpak, Sober and Vulkan.
+- 🕹️ **Activity tracking** — shows what you're playing (real game name, resolved
+  via Roblox's API) and lets you **rejoin the exact server** you were on, even
+  after closing Sober — plus a visited-servers history
 - 🌎 **7 languages** — English, Português, Español, Français, Deutsch, Русский, 日本語:
   auto-detected from your system locale, switchable instantly in settings.
 - 💬 **Discord Rich Presence** — one switch to show what you're playing on Discord
@@ -117,6 +120,9 @@ soberix fflags list|get|set|unset  # allowlist-safe FastFlags
 soberix fflags preset light|medium|full|default
 soberix mods list|install|remove|clear   # asset_overlay mods (.zip)
 soberix games                     # recent games (* = favorite)
+soberix status                     # game/server currently detected in Sober's logs
+soberix rejoin                     # reopen the last server you were on
+soberix servers                    # visited servers (with rejoin links)
 soberix backup create|list|restore # config.json snapshots
 soberix launch [--place ID]        # plain Sober launch
 ```

@@ -7,12 +7,13 @@ from __future__ import annotations
 
 import json
 import threading
+import time
 from pathlib import Path
 
 import gi
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, Gio, GLib, Gdk  # noqa: E402
+from gi.repository import Gtk, Gio, GLib, Gdk, Pango  # noqa: E402
 
 from . import activity, backups, config, constants, desktop_integration, environment, fflags, history, launcher, mods, settings, updates  # noqa: E402
 from . import shortcut_refresh  # noqa: E402
@@ -190,6 +191,7 @@ class SoberixWindow(Gtk.ApplicationWindow):
         self.inner_stack.add_titled(self._build_system_tab(), "system", t("tab.system"))
         self.inner_stack.add_titled(self._build_config_tab(), "config", t("tab.config"))
         self.inner_stack.add_titled(self._build_fflags_tab(), "fflags", t("tab.fflags"))
+        self.inner_stack.add_titled(self._build_servers_card(), "servers", t("tab.servers"))
         self.inner_stack.add_titled(self._build_mods_tab(), "mods", t("tab.mods"))
         self.inner_stack.add_titled(self._build_backups_tab(), "backups", t("tab.backups"))
 
@@ -636,6 +638,32 @@ class SoberixWindow(Gtk.ApplicationWindow):
             history.add_recent(act.place_id, resolve=True)
         except Exception:  # noqa: BLE001 — histórico é best effort
             pass
+        self._resolve_name_async(act.place_id)
+        return False
+
+    def _resolve_name_async(self, place_id: str) -> None:
+        """Busca o nome real do jogo (API do Roblox) fora da main thread.
+
+        PlaceIds já resolvidos antes são pulados (cache em memória).
+        """
+        if cache is None:
+            cache = self._resolved_names = set()
+        if place_id in cache:
+            return
+        cache.add(place_id)
+
+        def worker():
+            name = history.fetch_game_name(place_id)
+            if name:
+                GLib.idle_add(self._on_name_resolved, place_id, name)
+
+        threading.Thread(target=worker, daemon=True).start()
+
+    def _on_name_resolved(self, place_id: str, name: str) -> bool:
+        history.set_name(place_id, name)
+        self._refresh_activity_row()
+        self._refresh_servers_card()
+        self._refresh_games_row()
         return False
 
     def _refresh_activity_row(self) -> None:
@@ -654,22 +682,47 @@ class SoberixWindow(Gtk.ApplicationWindow):
             self._current_activity = act
 
         names = {e.id: e.name for e in history.recent()}
+        servers = {s["place_id"]: s.get("name") for s in history.server_history()}
+
+        def _known(pid: str) -> str | None:
+            """Nome já conhecido do jogo (recentes ou servidores); resolve na 1ª vez."""
+            known = names.get(pid) or servers.get(pid)
+            if known and known != pid:
+                return known
+            self._resolve_name_async(pid)  # best effort: vira nome real em ~1s
+            return None
+
         if act is not None:
-            name = names.get(act.place_id, act.place_id)
+            name = _known(act.place_id) or t("act.unknown_game")
             lbl = Gtk.Label()
             lbl.set_markup(f"<small>🎮 {GLib.markup_escape_text(t('act.playing', name=name))}</small>")
             lbl.set_wrap(True)
             self.activity_row.append(lbl)
+            if act.server_ip and not activity._is_private_ip(act.server_ip):
+                loc = activity.fetch_server_location(act.server_ip)
+                if loc:
+                    where = ", ".join(x for x in (loc.city, loc.region, loc.country) if x)
+                    if where:
+                        loc_lbl = Gtk.Label()
+                        loc_lbl.set_markup(f"<small>📍 {GLib.markup_escape_text(where)}</small>")
+                        self.activity_row.append(loc_lbl)
             if act.job_id:
+                row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6,
+                              halign=Gtk.Align.CENTER)
                 btn = Gtk.Button(label=t("act.rejoin"))
                 btn.add_css_class("flat")
                 btn.connect("clicked", self._on_rejoin, act)
-                self.activity_row.append(btn)
+                btn_copy = Gtk.Button(label=t("act.copy"))
+                btn_copy.add_css_class("flat")
+                btn_copy.connect("clicked", self._on_copy_rejoin, act)
+                row.append(btn)
+                row.append(btn_copy)
+                self.activity_row.append(row)
             return
 
         last = history.last_server()
         if last:
-            name = names.get(last["place_id"], last.get("name") or last["place_id"])
+            name = _known(last["place_id"]) or last.get("name") or t("act.unknown_game")
             lbl = Gtk.Label()
             lbl.set_markup(f"<small>{GLib.markup_escape_text(t('act.last_server', name=name))}</small>")
             lbl.set_wrap(True)
@@ -694,6 +747,102 @@ class SoberixWindow(Gtk.ApplicationWindow):
             launcher.launch_url(url)
         except launcher.LaunchError as exc:
             _toast(self, t("dlg.err_launch"), str(exc), error=True)
+
+    def _on_copy_rejoin(self, _btn: Gtk.Button, act) -> bool:
+        """Copia o link de convite do servidor atual (funciona sem Soberix)."""
+        url = activity.rejoin_url(act)
+        if not url:
+            _toast(self, t("act.copy"), t("act.none"), error=True)
+            return False
+        if activity.copy_rejoin_link(act):
+            _toast(self, t("act.copy"), url)
+        else:
+            _toast(self, t("act.copy"), t("act.copy_fail"), error=True)
+        return False
+
+    # ------------------------------------------------------------ card Servidores (Sistema)
+    def _build_servers_card(self) -> Gtk.Widget:
+        """Histórico de servidores visitados, com rejoin individual."""
+        card = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8,
+                       margin_top=10, margin_bottom=10, margin_start=10, margin_end=10)
+        card.add_css_class("card")
+        title = Gtk.Label()
+        title.set_markup(f"<b>{t('srv.title')}</b>")
+        title.set_halign(Gtk.Align.START)
+        card.append(title)
+
+        self.servers_list = Gtk.ListBox()
+        self.servers_list.set_selection_mode(Gtk.SelectionMode.NONE)
+        self.servers_list.add_css_class("boxed-list")
+        self._refresh_servers_card()
+        card.append(self.servers_list)
+
+        row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+        btn_clear = Gtk.Button(label=t("srv.clear"))
+        btn_clear.connect("clicked", self._on_clear_servers)
+        row.append(btn_clear)
+        row.set_halign(Gtk.Align.START)
+        card.append(row)
+        return card
+
+    def _refresh_servers_card(self) -> None:
+        if not hasattr(self, "servers_list"):
+            return
+        child = self.servers_list.get_first_child()
+        while child:
+            nxt = child.get_next_sibling()
+            self.servers_list.remove(child)
+            child = nxt
+        servers = history.server_history()
+        if not servers:
+            empty = Gtk.Label(label=t("srv.empty"))
+            empty.set_halign(Gtk.Align.START)
+            empty.set_margin_start(8)
+            empty.set_margin_top(6)
+            empty.set_margin_bottom(6)
+            self.servers_list.append(empty)
+            return
+        for s in servers:
+            row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8,
+                          margin_top=4, margin_bottom=4, margin_start=8, margin_end=8)
+            name = s.get("name") or s["place_id"]
+            lbl = Gtk.Label()
+            ts = s.get("ts") or 0
+            when = time.strftime("%d/%m %H:%M", time.localtime(ts)) if ts else ""
+            lbl.set_markup(f"{GLib.markup_escape_text(str(name))} <small>{when}</small>")
+            lbl.set_halign(Gtk.Align.START)
+            lbl.set_hexpand(True)
+            lbl.set_ellipsize(Pango.EllipsizeMode.END)
+            lbl.set_max_width_chars(32)
+            btn_join = Gtk.Button(label=t("srv.join"))
+            btn_join.add_css_class("flat")
+            btn_join.connect("clicked", self._on_join_server, s)
+            btn_rm = Gtk.Button(label="✕")
+            btn_rm.set_tooltip_text(t("srv.remove"))
+            btn_rm.connect("clicked", self._on_remove_server, s["job_id"])
+            row.append(lbl)
+            row.append(btn_join)
+            row.append(btn_rm)
+            self.servers_list.append(row)
+
+    def _on_join_server(self, _btn: Gtk.Button, s: dict) -> None:
+        url = (f"roblox://experiences/start?placeId={s['place_id']}"
+               f"&gameInstanceId={s['job_id']}")
+        try:
+            launcher.launch_url(url)
+        except launcher.LaunchError as exc:
+            _toast(self, t("dlg.err_launch"), str(exc), error=True)
+
+    def _on_remove_server(self, _btn: Gtk.Button, job_id: str) -> bool:
+        history.remove_server(job_id)
+        self._refresh_servers_card()
+        return False
+
+    def _on_clear_servers(self, _btn: Gtk.Button) -> None:
+        if not _confirm(self, t("srv.q_clear"), t("srv.q_clear_detail")):
+            return
+        history.clear_servers()
+        self._refresh_servers_card()
 
     def _refresh_games_card(self) -> None:
         """Card de gerenciamento na aba Sistema (não bloqueia se ausente)."""

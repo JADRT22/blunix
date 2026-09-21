@@ -84,29 +84,56 @@ def add_recent(place_id: str, name: str | None = None,
                          args=(place_id, on_name), daemon=True).start()
 
 
-def _resolve_name_worker(place_id: str, on_name=None) -> None:
-    """Busca o nome oficial do jogo; nunca levanta (best effort)."""
-    name = None
+def fetch_game_name(place_id: str, timeout: float = 5.0) -> str | None:
+    """Nome oficial do jogo via APIs públicas do Roblox (None se falhar).
+
+    Bloqueante — chamar de uma thread; a GUI usa via _resolve_name_async.
+    """
     try:
         req = urllib.request.Request(_UNIVERSE_API.format(id=place_id),
                                      headers={"Accept": "application/json"})
-        with urllib.request.urlopen(req, timeout=5) as resp:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
             uid = json.loads(resp.read().decode("utf-8")).get("universeId")
-        if uid:
-            req = urllib.request.Request(_GAMES_API.format(uid=uid),
-                                         headers={"Accept": "application/json"})
-            with urllib.request.urlopen(req, timeout=5) as resp:
-                items = json.loads(resp.read().decode("utf-8")).get("data") or []
-            name = items[0].get("name") if items else None
+        if not uid:
+            return None
+        req = urllib.request.Request(_GAMES_API.format(uid=uid),
+                                     headers={"Accept": "application/json"})
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            items = json.loads(resp.read().decode("utf-8")).get("data") or []
+        return items[0].get("name") if items else None
     except (OSError, ValueError, IndexError, KeyError):
-        return  # offline/API mudou: fica o que já tinha
-    if not name:
+        return None  # offline/API mudou: fica o que já tinha
+
+
+def set_name(place_id: str, name: str) -> None:
+    """Grava o nome real de um jogo (recentes + histórico de servidores)."""
+    place_id = str(place_id).strip()
+    if not place_id or not name:
         return
     data = _load()
+    changed = False
     for e in data["recent"]:
-        if e["id"] == place_id:
+        if e["id"] == place_id and e.get("name") != name:
             e["name"] = name
-    _save(data)
+            changed = True
+    if changed:
+        _save(data)
+    sdata = _load_servers()
+    changed = False
+    for s in sdata["servers"]:
+        if s["place_id"] == place_id and s.get("name") != name:
+            s["name"] = name
+            changed = True
+    if changed:
+        _save_servers(sdata)
+
+
+def _resolve_name_worker(place_id: str, on_name=None) -> None:
+    """Busca o nome oficial do jogo; nunca levanta (best effort)."""
+    name = fetch_game_name(place_id)
+    if not name:
+        return
+    set_name(place_id, name)
     if on_name:
         try:
             on_name(name)
@@ -209,6 +236,15 @@ def server_history() -> list[dict]:
 def last_server() -> dict | None:
     servers = server_history()
     return servers[0] if servers else None
+
+
+def remove_server(job_id: str) -> bool:
+    """Remove um servidor do histórico. Retorna True se removeu."""
+    data = _load_servers()
+    before = len(data["servers"])
+    data["servers"] = [s for s in data["servers"] if s["job_id"] != str(job_id)]
+    _save_servers(data)
+    return len(data["servers"]) < before
 
 
 def clear_servers() -> None:

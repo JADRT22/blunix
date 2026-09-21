@@ -89,3 +89,67 @@ def test_recent_server_activity_escaneia_sessoes(tmp_path: Path, monkeypatch):
 
 def test_recent_server_activity_sem_logs(tmp_path: Path):
     assert activity.recent_server_activity(log_dir=tmp_path) is None
+
+
+# ---------------------------------------------------------------- nomes e histórico de servidores
+def test_fetch_game_name_formata_apis(monkeypatch):
+    """fetch_game_name encadeia universe API -> games API."""
+    import json as _json
+    from soberix import history
+
+    calls = []
+
+    class R:
+        def __init__(self, payload):
+            self.payload = payload
+
+        def read(self):
+            return _json.dumps(self.payload).encode()
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+    def fake_urlopen(req, timeout=None):
+        calls.append(req.full_url)
+        if "universes/v1" in req.full_url:
+            return R({"universeId": 5595353122})
+        return R({"data": [{"name": "Brookhaven RP"}]})
+
+    monkeypatch.setattr(history.urllib.request, "urlopen", fake_urlopen)
+    assert history.fetch_game_name("136406881576517") == "Brookhaven RP"
+    assert len(calls) == 2
+
+
+def test_fetch_game_name_offline_retorna_none(monkeypatch):
+    from soberix import history
+
+    def boom(*a, **k):
+        raise OSError("offline")
+
+    monkeypatch.setattr(history.urllib.request, "urlopen", boom)
+    assert history.fetch_game_name("123") is None
+
+
+def test_set_name_atualiza_recentes_e_servidores(tmp_path, monkeypatch):
+    from soberix import history, constants
+
+    monkeypatch.setattr(constants, "SOBERIX_STATE_DIR", tmp_path / "state")
+    history.add_recent("111", name="111")
+    history.add_server("111", "job-abc", name="111")
+    history.set_name("111", "Brookhaven RP")
+    assert history.recent()[0].name == "Brookhaven RP"
+    assert history.server_history()[0]["name"] == "Brookhaven RP"
+
+
+def test_remove_server(tmp_path, monkeypatch):
+    from soberix import history, constants
+
+    monkeypatch.setattr(constants, "SOBERIX_STATE_DIR", tmp_path / "state")
+    history.add_server("222", "job-x")
+    history.add_server("333", "job-y")
+    assert history.remove_server("job-x") is True
+    assert [s["job_id"] for s in history.server_history()] == ["job-y"]
+    assert history.remove_server("nao-existe") is False

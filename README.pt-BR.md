@@ -141,6 +141,9 @@ soberix fflags preset performance    # aplica preset
 soberix mods list                    # mods instalados no asset_overlay
 soberix mods install meumod.zip      # instala um mod
 soberix mods remove ArrowCursor.png  # remove por caminho relativo
+soberix status                       # jogo/servidor detectado nos logs do Sober
+soberix rejoin                       # reentra no último servidor
+soberix servers                      # servidores visitados
 soberix backup create                # cria backup
 soberix backup list                  # lista backups
 soberix backup restore <arquivo>     # restaura

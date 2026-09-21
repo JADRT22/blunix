@@ -274,6 +274,19 @@ def cmd_rejoin(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_servers(_args: argparse.Namespace) -> int:
+    """Lista os servidores visitados (rejoin: soberix rejoin)."""
+    servers = history.server_history()
+    if not servers:
+        print("(nenhum servidor no histórico — entre em um jogo pelo Sober)")
+        return 0
+    for s in servers:
+        when = time.strftime("%d/%m %H:%M", time.localtime(s.get("ts") or 0))
+        name = (s.get("name") or s["place_id"])[:30]
+        print(f" {when}  {name:<30} place {s['place_id']}  servidor {s['job_id'][:8]}…")
+    return 0
+
+
 def cmd_where(args: argparse.Namespace) -> int:
     """Localização aproximada do servidor atual (ipinfo.io)."""
     act = activity.recent_server_activity()
@@ -429,6 +442,9 @@ def build_parser() -> argparse.ArgumentParser:
 
     p = sub.add_parser("where", help="localização aproximada do servidor atual")
     p.set_defaults(func=cmd_where)
+
+    p = sub.add_parser("servers", help="lista os servidores visitados")
+    p.set_defaults(func=cmd_servers)
 
     p = sub.add_parser("games", help="lista jogos recentes (* = favorito)")
     p.set_defaults(func=cmd_games)
