@@ -11,7 +11,12 @@ set -euo pipefail
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$PROJECT_ROOT"
 
-VERSION="1.4"
+# Fonte única da versão: soberix/constants.py (VERSION)
+VERSION="$(sed -n 's/^VERSION = "\(.*\)"$/\1/p' soberix/constants.py)"
+if [ -z "$VERSION" ]; then
+  echo "ERRO: não consegui extrair VERSION de soberix/constants.py" >&2
+  exit 1
+fi
 ARCH="$(uname -m)"
 APPDIR="build/AppDir"
 OUT="Soberix-${VERSION}-${ARCH}.AppImage"
